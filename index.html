@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>家庭共识空间 · Consensus Hub</title>
     <!-- 轻量级云端实时同步通信引擎 -->
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -33,7 +33,7 @@
             --role-dad-bg: #f0fdfa;
             --role-dad-border: #ccfbf1;
             
-            --radius-outer: 20px;
+            --radius-outer: 18px;
             --radius-inner: 12px;
             --radius-badge: 6px;
             
@@ -60,7 +60,7 @@
             gap: 16px;
         }
 
-        /* 1. 左侧导航 (电脑端固定 / 手机端抽屉) */
+        /* 1. 左侧导航 (电脑端常驻 / 手机端隐藏换为底部导航) */
         .nav-column {
             width: 260px;
             background: var(--bg-surface);
@@ -71,8 +71,7 @@
             padding: 18px 14px;
             box-shadow: var(--shadow-subtle);
             flex-shrink: 0;
-            z-index: 100;
-            transition: transform 0.3s ease;
+            overflow-y: auto;
         }
 
         .workspace-brand {
@@ -205,16 +204,6 @@
             line-height: 1.4;
         }
 
-        /* 抽屉遮罩 (移动端专享) */
-        .drawer-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4);
-            z-index: 90;
-            display: none;
-            backdrop-filter: blur(2px);
-        }
-
         /* 2. 主体工作区容器 */
         .main-stage {
             flex: 1;
@@ -278,21 +267,10 @@
             flex-shrink: 0;
         }
 
-        .btn-mobile-menu {
-            display: none;
-            background: none;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-right: 4px;
-        }
-
         .btn-header-tool {
             background: #faf9f6;
             border: 1px solid var(--border-light);
-            padding: 5px 9px;
+            padding: 6px 10px;
             border-radius: 8px;
             font-size: 11.5px;
             color: var(--text-secondary);
@@ -324,7 +302,7 @@
             gap: 4px;
             background: #faf9f6;
             border: 1px solid var(--border-light);
-            padding: 5px 8px;
+            padding: 6px 8px;
             border-radius: 8px;
             font-size: 11.5px;
             color: var(--text-secondary);
@@ -342,17 +320,18 @@
             max-width: 90px;
         }
 
-        /* 移动端专属：当前争议抽屉折叠条 */
+        /* 手机端当前争议折叠条 */
         .mobile-status-toggle-bar {
             display: none;
             background: #faf9f6;
             border-bottom: 1px solid var(--border-light);
-            padding: 8px 14px;
-            font-size: 11.5px;
+            padding: 9px 14px;
+            font-size: 12px;
             color: var(--text-secondary);
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            user-select: none;
         }
 
         /* 批量操作控制浮动条 */
@@ -398,26 +377,25 @@
             max-width: 96%;
             position: relative;
         }
-        .msg-container:hover .msg-hover-actions { opacity: 1; pointer-events: auto; }
 
         .msg-checkbox {
             display: none;
             align-self: center;
             margin-right: 4px;
             cursor: pointer;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
         }
         .selection-mode .msg-checkbox { display: inline-block; }
 
         .user-avatar {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 700;
             flex-shrink: 0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
@@ -476,22 +454,16 @@
             word-break: break-word;
         }
 
-        /* 消息悬浮/触控操作栏 */
+        /* 消息操作栏 */
         .msg-hover-actions {
-            position: absolute;
-            right: 4px;
-            top: -12px;
-            background: #ffffff;
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            align-self: flex-start;
+            background: #faf9f6;
             border: 1px solid var(--border-light);
             border-radius: 6px;
             padding: 2px 6px;
-            display: flex;
-            gap: 4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-            z-index: 10;
         }
         .action-icon-btn {
             background: none;
@@ -499,7 +471,7 @@
             color: var(--text-tertiary);
             font-size: 11px;
             cursor: pointer;
-            padding: 2px 4px;
+            padding: 3px 5px;
             border-radius: 4px;
         }
         .action-icon-btn:hover { background: #f5f4ef; color: var(--text-primary); }
@@ -530,10 +502,10 @@
         .id-button {
             border: 1px solid var(--border-light);
             background: var(--bg-elevated);
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 11.5px;
+            font-size: 12px;
             color: var(--text-secondary);
             transition: all 0.15s;
             white-space: nowrap;
@@ -545,12 +517,12 @@
         .input-row-box { display: flex; gap: 6px; }
         .chat-input-textarea {
             flex: 1;
-            height: 40px;
-            padding: 8px 12px;
+            height: 42px;
+            padding: 10px 12px;
             border-radius: var(--radius-inner);
             border: 1px solid var(--border-light);
             background: #faf9f6;
-            font-size: 13px;
+            font-size: 13.5px;
             outline: none;
             resize: none;
             color: var(--text-primary);
@@ -558,23 +530,23 @@
         .chat-input-textarea:focus { border-color: #292524; background: #ffffff; }
         
         .btn-dispatch {
-            padding: 0 12px;
+            padding: 0 14px;
             background: #1c1917;
             color: #fafaf9;
             border: none;
             border-radius: var(--radius-inner);
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
         }
         .btn-dispatch-ai {
-            padding: 0 12px;
+            padding: 0 14px;
             background: #6d28d9;
             color: #ffffff;
             border: none;
             border-radius: var(--radius-inner);
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
@@ -618,7 +590,7 @@
         .chip-issue { background: #f5f5f4; color: #292524; }
         .chip-flaw { background: #fee2e2; color: #991b1b; }
 
-        /* 通用独立视图排版 */
+        /* 独立视图排版 */
         .single-view-body {
             flex: 1;
             padding: 16px;
@@ -657,7 +629,7 @@
 
         .tab-switcher { display: flex; gap: 6px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; width: 100%; flex-shrink: 0; overflow-x: auto; white-space: nowrap; }
         .tab-tag {
-            padding: 6px 12px;
+            padding: 7px 12px;
             border-radius: var(--radius-inner);
             cursor: pointer;
             font-size: 12px;
@@ -807,6 +779,34 @@
             width: 100%;
         }
 
+        /* 3. 手机端底部固定导航栏 (微信/App 经典触控体验) */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #ffffff;
+            border-top: 1px solid var(--border-light);
+            padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+            justify-content: space-around;
+            align-items: center;
+            z-index: 80;
+        }
+        .mobile-tab-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px 6px;
+            min-width: 50px;
+        }
+        .mobile-tab-btn span.tab-icon { font-size: 16px; }
+        .mobile-tab-btn.active { color: #1c1917; font-weight: 700; }
+
         @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -815,33 +815,18 @@
             body {
                 padding: 0;
                 gap: 0;
+                padding-bottom: calc(54px + env(safe-area-inset-bottom));
             }
             .main-stage {
                 border-radius: 0;
                 border: none;
             }
-            /* 侧边栏转为抽屉 */
             .nav-column {
-                position: fixed;
-                top: 0; bottom: 0; left: 0;
-                width: 270px;
-                border-radius: 0;
-                border: none;
-                border-right: 1px solid var(--border-light);
-                transform: translateX(-100%);
-                box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+                display: none; /* 手机端隐藏左侧栏，改用底部栏 */
             }
-            .nav-column.drawer-open {
-                transform: translateX(0);
+            .mobile-bottom-nav {
+                display: flex;
             }
-            .drawer-overlay.show {
-                display: block;
-            }
-            .btn-mobile-menu {
-                display: inline-flex;
-            }
-
-            /* 聊天区分屏转为单列，右侧状态栏折叠 */
             .chat-split-grid {
                 grid-template-columns: 1fr;
             }
@@ -851,33 +836,21 @@
             .right-status-column.mobile-expanded {
                 display: flex;
                 position: absolute;
-                top: 52px; left: 0; right: 0; bottom: 0;
+                top: 86px; left: 0; right: 0; bottom: 0;
                 background: #faf9f6;
-                z-index: 40;
+                z-index: 50;
             }
             .mobile-status-toggle-bar {
                 display: flex;
             }
-
-            /* 移动端触摸按钮优化 */
-            .msg-hover-actions {
-                opacity: 1;
-                pointer-events: auto;
-                position: static;
-                margin-top: 4px;
-                align-self: flex-start;
-                background: #faf9f6;
-                box-shadow: none;
-                border: 1px solid var(--border-light);
-            }
             .header-bar {
-                padding: 10px 14px;
+                padding: 10px 12px;
             }
             .conversation-scroll {
                 padding: 12px;
             }
             .chat-action-bar {
-                padding: 8px 12px 12px;
+                padding: 8px 12px 10px;
             }
             .single-view-body {
                 padding: 12px;
@@ -887,11 +860,8 @@
 </head>
 <body>
 
-    <!-- 移动端侧滑抽屉遮罩 -->
-    <div class="drawer-overlay" id="drawerOverlay" onclick="toggleMobileDrawer(false)"></div>
-
-    <!-- 1. 左侧导航 (电脑端常驻 / 手机端侧滑抽屉) -->
-    <aside class="nav-column" id="mainNavDrawer">
+    <!-- 1. 左侧导航 (电脑端显示) -->
+    <aside class="nav-column">
         <div class="workspace-brand">
             <div class="brand-avatar">C</div>
             <div class="brand-meta">
@@ -971,13 +941,12 @@
         <section class="view-content-pane active-pane" id="pane-chat">
             
             <div class="header-bar">
-                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
                     <h3 id="paneChatTitle">
-                        👥 三人实时主群聊
+                        👥 三人实时大群
                         <span class="public-inspect-banner" id="publicInspectBadge" style="display: none;">公开</span>
                     </h3>
-                    <p id="paneChatDesc">三方实时群聊，AI 实时抓漏洞与拆解</p>
+                    <p id="paneChatDesc">三方实时群聊，AI 客观拆解</p>
                 </div>
 
                 <div class="header-actions-group">
@@ -994,7 +963,7 @@
                 </div>
             </div>
 
-            <!-- 手机端状态栏快速折叠条 -->
+            <!-- 手机端状态栏折叠条 -->
             <div class="mobile-status-toggle-bar" onclick="toggleMobileStatusView()">
                 <span>📌 查看当前争议与 AI 事实拆解</span>
                 <span id="mobileStatusToggleIcon">▼</span>
@@ -1029,11 +998,11 @@
                     </div>
                 </div>
 
-                <!-- 右侧状态栏 (手机端折叠 / 电脑端常驻) -->
+                <!-- 右侧状态栏 (手机端可折叠查看) -->
                 <div class="right-status-column" id="rightStatusCol">
                     <div class="status-block">
                         <h4><span>📌</span> 当前讨论事件</h4>
-                        <span class="meta-chip chip-issue" id="statusEventText">等待输入讨论内容</span>
+                        <span class="meta-chip chip-issue" id="statusEventText">日常沟通与事实核对</span>
                     </div>
 
                     <div class="status-block" style="border-left: 3px solid #ef4444;">
@@ -1063,7 +1032,6 @@
         <!-- 视窗 2: 每个人问题点独立表 -->
         <section class="view-content-pane" id="pane-tables">
             <div class="header-bar">
-                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
                     <h3>📊 每个人问题点独立分析表</h3>
                     <p>各自独立分开呈现，全家云端同步</p>
@@ -1138,7 +1106,6 @@
         <!-- 视窗 3: 关于我 -->
         <section class="view-content-pane" id="pane-profile">
             <div class="header-bar">
-                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
                     <h3>👤 关于我的资料库 (云端共享)</h3>
                     <p>性格、作息、雷区与沟通边界</p>
@@ -1170,7 +1137,6 @@
         <!-- 视窗 4: AI 记忆档案与历史共识库 -->
         <section class="view-content-pane" id="pane-memory">
             <div class="header-bar">
-                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
                     <h3>🧠 AI 记忆档案与历史共识库</h3>
                     <p>全家已达成共识的事项，实时云端记录</p>
@@ -1194,7 +1160,6 @@
         <!-- 视窗 5: 发起家庭小问卷 -->
         <section class="view-content-pane" id="pane-survey">
             <div class="header-bar">
-                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
                     <h3>📝 发起家庭小问卷 (实时同步)</h3>
                     <p>多题创建，在线作答，全家同步</p>
@@ -1225,6 +1190,38 @@
         </section>
 
     </main>
+
+    <!-- 3. 手机端专属底部固定导航栏 (触控灵敏) -->
+    <nav class="mobile-bottom-nav">
+        <button class="mobile-tab-btn active" id="mTab_chat" onclick="mobileSelectTab('chat')">
+            <span class="tab-icon">💬</span>
+            <span>三人大群</span>
+        </button>
+        <button class="mobile-tab-btn" id="mTab_mom_ai" onclick="mobileSelectTab('mom_ai')">
+            <span class="tab-icon">👩</span>
+            <span>妈妈&AI</span>
+        </button>
+        <button class="mobile-tab-btn" id="mTab_dad_ai" onclick="mobileSelectTab('dad_ai')">
+            <span class="tab-icon">👨</span>
+            <span>爸爸&AI</span>
+        </button>
+        <button class="mobile-tab-btn" id="mTab_tables" onclick="mobileSelectTab('tables')">
+            <span class="tab-icon">📊</span>
+            <span>问题表</span>
+        </button>
+        <button class="mobile-tab-btn" id="mTab_profile" onclick="mobileSelectTab('profile')">
+            <span class="tab-icon">👤</span>
+            <span>我的资料</span>
+        </button>
+        <button class="mobile-tab-btn" id="mTab_survey" onclick="mobileSelectTab('survey')">
+            <span class="tab-icon">📝</span>
+            <span>问卷</span>
+        </button>
+        <button class="mobile-tab-btn" id="mTab_ai_cfg" onclick="openAiConfigModal()">
+            <span class="tab-icon">⚙️</span>
+            <span>设置</span>
+        </button>
+    </nav>
 
     <!-- 弹窗 1: 新建讨论房间 -->
     <div class="modal-shade" id="roomModalDialog">
@@ -1301,16 +1298,21 @@
         let isSelectionMode = false;
         let isAiThinking = false;
 
+        /* 内置结构化清晰模版框架 (不再留空白) */
         let globalState = {
             chatRooms: {
                 'room-three': [
-                    { id: 'm_init_1', sender: 'ai', text: '欢迎来到家庭共识空间！请大家各抒己见，有话慢慢说。AI 会在旁边保持客观中立，帮大家把各自的真实想法解释清楚。', time: '系统提示' }
+                    { id: 'm1', sender: 'mom', text: '大家今天都在群里，有什么事情咱们就在这里摊开讲。', time: '10:00' },
+                    { id: 'm2', sender: 'me', text: '好，平时很多话当面说容易带情绪，在这里我们可以慢慢说清楚。', time: '10:02' },
+                    { id: 'm3', sender: 'ai', text: '【AI 助手】已就位。我将保持客观中立，不偏袒任何一方，协助理清事实与诉求。', time: '10:02' }
                 ],
                 'room-mom-ai': [
-                    { id: 'm_init_2', sender: 'ai', text: '阿姨您好！这里是您和 AI 的沟通窗口。您对孩子的想法或平时沟通中的困惑随时可以在这里提问，AI 会根据孩子的资料耐心为您解答。此窗口家庭全员公开可查。', time: '系统提示' }
+                    { id: 'm_mom_1', sender: 'mom', text: 'AI，平时孩子不爱说话，我该怎么和孩子沟通？', time: '昨天' },
+                    { id: 'm_mom_2', sender: 'ai', text: '阿姨您好！根据孩子的性格特质，当孩子疲惫时需要一定的独处空间。建议在孩子休息充分后，再进行平和具体的交流。此记录全家公开可查。', time: '昨天' }
                 ],
                 'room-dad-ai': [
-                    { id: 'm_init_3', sender: 'ai', text: '叔叔您好！这里是您和 AI 的沟通窗口。您有任何想法或顾虑都可以在这里提问，AI 会协助梳理事实。此窗口家庭全员公开可查。', time: '系统提示' }
+                    { id: 'm_dad_1', sender: 'dad', text: 'AI，你帮我看看如何理解年轻人的职业发展想法？', time: '前天' },
+                    { id: 'm_dad_2', sender: 'ai', text: '叔叔您好！现代行业更看重技能积累与长期赛道空间，可以多了解孩子的行业现状，就事论事探讨。此记录全家公开可查。', time: '前天' }
                 ],
                 'room-me-ai': [],
                 'room-direct': []
@@ -1322,10 +1324,34 @@
                 'room-me-ai': { tag: '私人嘴替与起草参谋', prompt: '你是孩子的专属私人沟通参谋。完全站孩子立场，根据孩子的保密底牌，起草温和且有力的沟通要点。' },
                 'room-direct': { tag: '两代人事实速记员', prompt: '在旁边默默记录两代人的核心诉求，当双方偏离事实或翻旧账时简短拉回。' }
             },
-            problemTables: { mom: [], dad: [], me: [] },
-            profileList: [],
-            consensusList: [],
-            surveys: []
+            problemTables: {
+                mom: [
+                    { issue: '容易将关心演化为情绪化质问', logic: '出发点是出于关心，但表达上容易带有否定或催促语气。', refuse: '“我还不是为了你好”', advice: '直接表达关切本身，不附加额外评价。' }
+                ],
+                dad: [
+                    { issue: '习惯性以传统经验下定论', logic: '容易用过去的经验套用现在的新环境。', refuse: '“我走过的路比你多”', advice: '先倾听具体事实，再给出建议。' }
+                ],
+                me: [
+                    { issue: '遇到误解时容易直接封闭沟通', logic: '觉得解释成本高而放弃沟通，加深双方隔阂。', refuse: '直接沉默或不回消息', advice: '给出一句明确的时间预期：“我需要先休息半小时再聊”。' }
+                ]
+            },
+            profileList: [
+                { title: '性格模式 (MBTI: INFP)', desc: '偏内向，遇到压力时需要通过独立安静的空间来恢复精力。', perm: 'open' },
+                { title: '沟通雷区', desc: '反感“都是为了你好”、“你看别人家”等全盘否定式话术。', perm: 'open' },
+                { title: '真实底牌 (保密)', desc: '个人有明确的生活备用金与长期发展规划，希望按自己的节奏推进。', perm: 'hidden' }
+            ],
+            consensusList: [
+                { title: '【关于沟通节奏的约定】', desc: '进门疲劳时允许先休息充能，双方约定在合适的时间再开展深入讨论。', date: '2026年9月' }
+            ],
+            surveys: [
+                {
+                    id: 'surv_init',
+                    topic: '家庭日常沟通偏好调查',
+                    questions: ['你最希望对方在说话时注意什么？', '遇到分歧时你希望如何暂停？'],
+                    answers: [],
+                    date: '2026/9/22'
+                }
+            ]
         };
 
         const roleDefinitions = {
@@ -1335,16 +1361,24 @@
             'ai': { name: 'AI 助手', avClass: 'av-ai', bClass: '' }
         };
 
-        /* ================= 手机端专属抽屉导航与状态折叠 ================= */
-        function toggleMobileDrawer(open) {
-            const drawer = document.getElementById('mainNavDrawer');
-            const overlay = document.getElementById('drawerOverlay');
-            if (open) {
-                drawer.classList.add('drawer-open');
-                overlay.classList.add('show');
-            } else {
-                drawer.classList.remove('drawer-open');
-                overlay.classList.remove('show');
+        /* ================= 手机端底部 Tab 切换逻辑 ================= */
+        function mobileSelectTab(tabKey) {
+            document.querySelectorAll('.mobile-tab-btn').forEach(b => b.classList.remove('active'));
+            const curBtn = document.getElementById(`mTab_${tabKey}`);
+            if (curBtn) curBtn.classList.add('active');
+
+            if (tabKey === 'chat') {
+                showChatPane('room-three', '👥 三人实时大群', '孩子、妈妈、爸爸三方实时群聊，AI 客观拆解', null);
+            } else if (tabKey === 'mom_ai') {
+                showChatPane('room-mom-ai', '👩 妈妈 & AI 对话', '妈妈单独向 AI 提问沟通（全家公开可查）', null);
+            } else if (tabKey === 'dad_ai') {
+                showChatPane('room-dad-ai', '👨 爸爸 & AI 对话', '爸爸单独向 AI 提问沟通（全家公开可查）', null);
+            } else if (tabKey === 'tables') {
+                switchViewPane('pane-tables', null);
+            } else if (tabKey === 'profile') {
+                switchViewPane('pane-profile', null);
+            } else if (tabKey === 'survey') {
+                switchViewPane('pane-survey', null);
             }
         }
 
@@ -1482,7 +1516,7 @@
             }
 
             if (list.length === 0 && !isAiThinking) {
-                stream.innerHTML = '<div class="empty-hint">当前窗口暂无对话记录，在下方输入内容即可开始交流。</div>';
+                stream.innerHTML = '<div class="empty-hint">当前窗口暂无对话，在下方输入即可交流。</div>';
                 return;
             }
 
@@ -1497,10 +1531,10 @@
 
                 let actionsHtml = `
                     <div class="msg-hover-actions">
-                        <button class="action-icon-btn" onclick="copySingleMessage('${msg.id}')" title="复制">📋 复制</button>
-                        ${!isAi ? `<button class="action-icon-btn" onclick="editSingleMessage('${msg.id}')" title="编辑">✏️ 编辑</button>` : ''}
-                        ${isAi ? `<button class="action-icon-btn" onclick="regenerateAiResponse('${msg.id}')" title="让AI重新输出">🔄 重新输出</button>` : ''}
-                        <button class="action-icon-btn" onclick="deleteSingleMessage('${msg.id}')" title="撤回/删除">🗑️ 撤回</button>
+                        <button class="action-icon-btn" onclick="copySingleMessage('${msg.id}')">📋 复制</button>
+                        ${!isAi ? `<button class="action-icon-btn" onclick="editSingleMessage('${msg.id}')">✏️ 编辑</button>` : ''}
+                        ${isAi ? `<button class="action-icon-btn" onclick="regenerateAiResponse('${msg.id}')">🔄 重答</button>` : ''}
+                        <button class="action-icon-btn" onclick="deleteSingleMessage('${msg.id}')">🗑️ 撤回</button>
                     </div>
                 `;
 
@@ -1655,10 +1689,11 @@
 
         function switchViewPane(paneId, navEl) {
             document.querySelectorAll('.view-content-pane').forEach(p => p.classList.remove('active-pane'));
-            document.querySelectorAll('.nav-link').forEach(i => i.classList.remove('active'));
+            if (navEl) {
+                document.querySelectorAll('.nav-link').forEach(i => i.classList.remove('active'));
+                navEl.classList.add('active');
+            }
             document.getElementById(paneId).classList.add('active-pane');
-            navEl.classList.add('active');
-            toggleMobileDrawer(false); // 手机端点击后自动收起抽屉
         }
 
         function showChatPane(roomId, title, desc, navEl) {
@@ -1669,7 +1704,6 @@
             const roleCfg = globalState.roomRoles[roomId] || { tag: '客观事实拆解员' };
             document.getElementById('curRoomRoleTag').innerText = roleCfg.tag;
             renderChatStream();
-            toggleMobileDrawer(false);
         }
 
         function switchTable(tableId, tabEl) {
@@ -2132,4 +2166,53 @@ ${recentHistory}
             document.getElementById('cfgBaseUrl').value = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
             document.getElementById('cfgApiKey').value = localStorage.getItem('hub_api_key') || '';
             document.getElementById('cfgModel').value = localStorage.getItem('hub_api_model') || 'deepseek-chat';
-            document.getElementById('aiConfigModal').
+            document.getElementById('aiConfigModal').style.display = 'flex';
+        }
+        function closeAiConfigModal() { document.getElementById('aiConfigModal').style.display = 'none'; }
+        function saveAiConfig() {
+            localStorage.setItem('hub_api_url', document.getElementById('cfgBaseUrl').value.trim());
+            localStorage.setItem('hub_api_key', document.getElementById('cfgApiKey').value.trim());
+            localStorage.setItem('hub_api_model', document.getElementById('cfgModel').value.trim());
+            closeAiConfigModal();
+            alert('AI 接口配置已保存在本地浏览器！');
+        }
+
+        function getRoomCodeFromUrl() {
+            const match = window.location.search.match(/room=([a-zA-Z0-9_-]+)/) || window.location.hash.match(/room=([a-zA-Z0-9_-]+)/);
+            return match ? match[1] : null;
+        }
+
+        function copyInviteLink() {
+            const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert(`已复制家庭共享邀请链接：\n${shareUrl}\n\n直接发给爸爸妈妈，他们打开即可实时加入同一个家庭空间！`);
+            }).catch(() => {
+                prompt("请复制以下链接发给爸妈：", shareUrl);
+            });
+        }
+
+        function changeRoomCode() {
+            const newCode = prompt("请输入您和家人的专属房间号（英文或数字）：", roomCode);
+            if (newCode && newCode.trim() && newCode.trim() !== roomCode) {
+                roomCode = newCode.trim();
+                window.location.search = `?room=${roomCode}`;
+            }
+        }
+
+        function escapeHtml(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+        document.getElementById('mainChatInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitMessage(false);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const btn = document.querySelector(`.btn-${currentActiveRole}`);
+            if (btn) changeRole(currentActiveRole, btn);
+            initCloudSync();
+        });
+    </script>
+</body>
+</html>
