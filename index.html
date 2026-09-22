@@ -27,7 +27,7 @@
             --theme-green-light: #e8f5e9;
             --theme-green-border: #a3d9a5;
 
-            /* 身份识别色 (融入绿色基调) */
+            /* 身份识别色 */
             --role-me-text: #1b4332;
             --role-me-bg: #e8f5e9;
             --role-me-border: #c8e6c9;
@@ -1033,7 +1033,7 @@
                         </div>
                     </div>
 
-                    <div class="status-block">
+                    <div class="status-block" style="border-left: 3px solid #0d9488;">
                         <h4><span>👉</span> AI 建议的解决办法</h4>
                         <p id="statusActionText" style="font-size: 12px; line-height: 1.5; color: var(--text-primary); font-weight: 600;">
                             就事论事，一次只谈眼前的一件事。
@@ -2042,4 +2042,457 @@ ${allMessages.slice(-20).join('\n')}
         async function triggerAiAnalyzeCurrent() {
             const list = globalState.chatRooms[currentRoomId] || [];
             if (list.length === 0) {
-                
+                alert('当前暂无对话内容可供 AI 分析！');
+                return;
+            }
+
+            isAiThinking = true;
+            renderChatStream();
+
+            const roleCfg = globalState.roomRoles[currentRoomId] || { tag: '客观事实拆解员', prompt: '客观大白话拆解。' };
+            const apiKey = localStorage.getItem('hub_api_key');
+
+            try {
+                let aiResult;
+                if (apiKey) {
+                    aiResult = await callRealAiApi(roleCfg.prompt);
+                } else {
+                    await new Promise(res => setTimeout(res, 800));
+                    aiResult = {
+                        flawAnalysis: `[${roleCfg.tag}] 客观拆解：双方已陈述事实与想法。建议继续就事论事，一次只谈眼前的一件事，避免情绪化夸大。`,
+                        currentEvent: "家庭日常沟通与事实核对",
+                        actualDemands: "希望被尊重理解，且各自的边界不被越界",
+                        nextStep: "针对具体细节协商约定，避免翻旧账"
+                    };
+                }
+
+                const aiMsg = {
+                    id: 'msg_ai_' + Date.now(),
+                    sender: 'ai',
+                    text: aiResult.flawAnalysis,
+                    time: '刚刚'
+                };
+                globalState.chatRooms[currentRoomId].push(aiMsg);
+                renderChatStream();
+                broadcastSyncAction({ type: 'CHAT_MESSAGE', roomId: currentRoomId, msg: aiMsg });
+
+                if (aiResult.currentEvent) document.getElementById('statusEventText').innerText = aiResult.currentEvent;
+                if (aiResult.flawAnalysis) document.getElementById('statusFlawText').innerHTML = escapeHtml(aiResult.flawAnalysis);
+                if (aiResult.actualDemands) document.getElementById('statusDemandText').innerHTML = escapeHtml(aiResult.actualDemands);
+                if (aiResult.nextStep) document.getElementById('statusActionText').innerText = aiResult.nextStep;
+            } catch (err) {
+                alert('AI 呼叫失败：' + err.message);
+            } finally {
+                isAiThinking = false;
+                renderChatStream();
+            }
+        }
+
+        async function callRealAiApi(roomRolePrompt) {
+            const apiKey = localStorage.getItem('hub_api_key');
+            let baseUrl = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
+            const model = localStorage.getItem('hub_api_model') || 'deepseek-chat';
+            if (!baseUrl.endsWith('/chat/completions')) baseUrl = baseUrl.replace(/\/+$/, '') + '/chat/completions';
+
+            const profileTexts = globalState.profileList.map(item => `${item.title}: ${item.desc}`).join('\n');
+            const recentHistory = (globalState.chatRooms[currentRoomId] || []).slice(-8).map(m => {
+                const name = (roleDefinitions[m.sender] || {}).name || m.sender;
+                return `${name}：${m.text}`;
+            }).join('\n');
+
+            const systemPrompt = `【你在当前窗口的专属角色定位与指令】：
+${roomRolePrompt}
+
+【通用背景与家庭底牌数据】：
+${profileTexts || '暂无特殊底牌，按通识客观沟通'}
+
+【当前最新对话记录】：
+${recentHistory}
+
+【输出格式要求】：
+请务必使用通俗、口语化的大白话，并严格输出以下 JSON 格式：
+{
+  "flawAnalysis": "结合你的角色设定，客观指出刚才发言中谁在哪句话有什么逻辑问题或需要注意的地方（大白话直接指明）",
+  "currentEvent": "一句话概括当前争执的核心事件",
+  "actualDemands": "双方各自真正想要的实际需求（不带情绪）",
+  "nextStep": "具体的一步行动建议"
+}`;
+
+            const response = await fetch(baseUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: '请对上述对话进行客观事实拆解与回应。' }],
+                    temperature: 0.3
+                })
+            });
+
+            if (!response.ok) throw new Error(`API 响应错误：${response.statusText}`);
+            const data = await response.json();
+            const rawContent = data.choices[0].message.content;
+            try {
+                return JSON.parse(rawContent.replace(/```json/g, '').replace(/```/g, '').trim());
+            } catch (e) {
+                return { flawAnalysis: rawContent, currentEvent: "实时交流梳理", actualDemands: "互相听懂对方诉求", nextStep: "一次只谈一件事" };
+            }
+        }
+
+        /* ================= 消息单条与多选操作 ================= */
+        function copySingleMessage(msgId) {
+            const list = globalState.chatRooms[currentRoomId] || [];
+            const msg = list.find(m => m.id === msgId);
+            if (!msg) return;
+            navigator.clipboard.writeText(msg.text).then(() => {
+                alert('已复制该消息内容！');
+            });
+        }
+
+        function deleteSingleMessage(msgId) {
+            if (!confirm('确定要撤回/删除这条消息吗？此操作将同步给全家。')) return;
+            if (globalState.chatRooms[currentRoomId]) {
+                globalState.chatRooms[currentRoomId] = globalState.chatRooms[currentRoomId].filter(m => m.id !== msgId);
+                renderChatStream();
+                broadcastSyncAction({ type: 'DELETE_MESSAGE', roomId: currentRoomId, msgIds: [msgId] });
+            }
+        }
+
+        function editSingleMessage(msgId) {
+            const list = globalState.chatRooms[currentRoomId] || [];
+            const msg = list.find(m => m.id === msgId);
+            if (!msg) return;
+            const newText = prompt('编辑修改这条消息：', msg.text);
+            if (newText !== null && newText.trim() && newText.trim() !== msg.text) {
+                msg.text = newText.trim();
+                renderChatStream();
+                broadcastSyncAction({ type: 'EDIT_MESSAGE', roomId: currentRoomId, msgId: msgId, newText: msg.text });
+            }
+        }
+
+        async function regenerateAiResponse(msgId) {
+            deleteSingleMessage(msgId);
+            await triggerAiAnalyzeCurrent();
+        }
+
+        function toggleSelectionMode() {
+            isSelectionMode = !isSelectionMode;
+            const btn = document.getElementById('btnToggleSelectMode');
+            const bar = document.getElementById('batchActionBar');
+            
+            if (isSelectionMode) {
+                btn.classList.add('active');
+                bar.classList.add('show');
+            } else {
+                btn.classList.remove('active');
+                bar.classList.remove('show');
+                document.querySelectorAll('.msg-checkbox').forEach(cb => cb.checked = false);
+            }
+            updateBatchSelectedCount();
+            renderChatStream();
+        }
+
+        function updateBatchSelectedCount() {
+            const checkedBoxes = document.querySelectorAll('.msg-checkbox:checked');
+            document.getElementById('batchSelectedCount').innerText = checkedBoxes.length;
+        }
+
+        function batchCopyMessages() {
+            const checkedBoxes = document.querySelectorAll('.msg-checkbox:checked');
+            if (checkedBoxes.length === 0) { alert('请先勾选需要复制的消息！'); return; }
+
+            const list = globalState.chatRooms[currentRoomId] || [];
+            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+            const copyTexts = list.filter(m => selectedIds.includes(m.id)).map(m => {
+                const name = (roleDefinitions[m.sender] || {}).name || m.sender;
+                return `[${name} ${m.time}]：${m.text}`;
+            }).join('\n');
+
+            navigator.clipboard.writeText(copyTexts).then(() => {
+                alert(`已合并复制 ${checkedBoxes.length} 条选中的消息！`);
+                toggleSelectionMode();
+            });
+        }
+
+        function batchDeleteMessages() {
+            const checkedBoxes = document.querySelectorAll('.msg-checkbox:checked');
+            if (checkedBoxes.length === 0) { alert('请先勾选需要删除的消息！'); return; }
+
+            if (!confirm(`确定要批量删除选中的 ${checkedBoxes.length} 条消息吗？`)) return;
+
+            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+            if (globalState.chatRooms[currentRoomId]) {
+                globalState.chatRooms[currentRoomId] = globalState.chatRooms[currentRoomId].filter(m => !selectedIds.includes(m.id));
+                renderChatStream();
+                broadcastSyncAction({ type: 'DELETE_MESSAGE', roomId: currentRoomId, msgIds: selectedIds });
+                toggleSelectionMode();
+            }
+        }
+
+        /* ================= 问卷多题与在线作答 ================= */
+        function addQuestionField() {
+            const container = document.getElementById('surveyQuestionsBuilder');
+            const qCount = container.children.length + 1;
+            const div = document.createElement('div');
+            div.className = 'survey-q-row';
+            div.style.cssText = "display: flex; gap: 6px;";
+            div.innerHTML = `
+                <input type="text" class="survey-q-input" placeholder="问题 ${qCount}：写下你想向大家提问的事情...">
+                <button type="button" onclick="this.parentElement.remove()" style="background: none; border: 1px solid var(--border-light); padding: 0 8px; border-radius: 6px; cursor: pointer; color: var(--text-subtle);">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function sendSurveyForm() {
+            const topic = document.getElementById('surveyTopicInput').value.trim();
+            if (!topic) { alert('请输入问卷标题！'); return; }
+
+            const qInputs = document.querySelectorAll('.survey-q-input');
+            const questions = [];
+            qInputs.forEach(input => {
+                const val = input.value.trim();
+                if (val) questions.push(val);
+            });
+
+            if (questions.length === 0) {
+                alert('请至少填写一个问题！');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            const survey = {
+                id: 'surv_' + Date.now(),
+                topic: topic,
+                questions: questions,
+                answers: [],
+                date: dateStr
+            };
+
+            if (!globalState.surveys) globalState.surveys = [];
+            globalState.surveys.unshift(survey);
+            renderSurveys();
+            broadcastSyncAction({ type: 'ADD_SURVEY', survey });
+
+            document.getElementById('surveyTopicInput').value = '';
+            document.getElementById('surveyQuestionsBuilder').innerHTML = `
+                <div class="survey-q-row" style="display: flex; gap: 6px;">
+                    <input type="text" class="survey-q-input" placeholder="问题 1：写下你想向大家提问的事情...">
+                </div>
+            `;
+            alert('家庭小问卷已正式发布并同步全家！');
+        }
+
+        function submitSurveyAnswer(surveyId, qIndex) {
+            const inputId = `ans_${surveyId}_${qIndex}`;
+            const input = document.getElementById(inputId);
+            const text = input ? input.value.trim() : '';
+            if (!text) { alert('请输入您的回答内容！'); return; }
+
+            const now = new Date();
+            const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            const answer = {
+                role: currentActiveRole,
+                qIndex: qIndex,
+                text: text,
+                time: timeStr
+            };
+
+            const s = globalState.surveys.find(item => item.id === surveyId);
+            if (s) {
+                if (!s.answers) s.answers = [];
+                s.answers.push(answer);
+                renderSurveys();
+                broadcastSyncAction({ type: 'ANSWER_SURVEY', surveyId, answer });
+                alert('您的回答已提交并实时同步给全家！');
+            }
+        }
+
+        /* ================= 真实 API 模型在线拉取 ================= */
+        async function fetchAvailableModels() {
+            const apiKey = document.getElementById('cfgApiKey').value.trim();
+            let baseUrl = document.getElementById('cfgBaseUrl').value.trim() || 'https://api.deepseek.com/v1';
+
+            if (!apiKey) {
+                alert('请先输入 API Key 密钥，才能拉取可用模型列表！');
+                return;
+            }
+
+            const btn = document.getElementById('btnFetchModels');
+            btn.disabled = true;
+            btn.innerText = '拉取中...';
+
+            let modelsUrl = baseUrl;
+            if (modelsUrl.endsWith('/chat/completions')) {
+                modelsUrl = modelsUrl.replace(/\/chat\/completions$/, '/models');
+            } else {
+                modelsUrl = modelsUrl.replace(/\/+$/, '') + '/models';
+            }
+
+            try {
+                const response = await fetch(modelsUrl, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
+                });
+
+                if (!response.ok) throw new Error(`获取失败 (${response.status}): ${response.statusText}`);
+
+                const data = await response.json();
+                const modelSelect = document.getElementById('cfgModelSelect');
+                modelSelect.innerHTML = '<option value="">-- 请选择拉取到的模型 --</option>';
+
+                const modelsList = data.data || data.models || [];
+                if (Array.isArray(modelsList) && modelsList.length > 0) {
+                    modelsList.forEach(m => {
+                        const mId = m.id || m.name || m;
+                        const opt = document.createElement('option');
+                        opt.value = mId;
+                        opt.innerText = mId;
+                        modelSelect.appendChild(opt);
+                    });
+                    modelSelect.style.display = 'block';
+                    alert(`成功拉取到 ${modelsList.length} 个可用模型！`);
+                } else {
+                    alert('拉取成功但未解析到标准列表，请手动输入模型名称。');
+                }
+            } catch (err) {
+                alert('拉取模型失败：' + err.message + '\n可直接在下方手动填写模型名称（如 deepseek-chat）。');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '🔄 在线拉取模型';
+            }
+        }
+
+        function onModelSelectChange(selectEl) {
+            if (selectEl.value) {
+                document.getElementById('cfgModel').value = selectEl.value;
+            }
+        }
+
+        /* ================= 资料库与公约 ================= */
+        function addNewProfileItem() {
+            const title = document.getElementById('profileTitleInput').value.trim();
+            const desc = document.getElementById('profileDescInput').value.trim();
+            const perm = document.getElementById('profilePermSelect').value;
+            if (!title) { alert('请输入资料标题！'); return; }
+
+            const item = { title, desc: desc || '已记录生效。', perm, source: 'user' };
+            globalState.profileList.push(item);
+            renderProfiles();
+            broadcastSyncAction({ type: 'ADD_PROFILE_ITEM', item });
+
+            document.getElementById('profileTitleInput').value = '';
+            document.getElementById('profileDescInput').value = '';
+            alert('资料已保存并同步云端！');
+        }
+
+        function addConsensusTimeline() {
+            const title = document.getElementById('consensusTitle').value.trim();
+            const content = document.getElementById('consensusContent').value.trim();
+            if (!title) { alert('请输入共识标题！'); return; }
+
+            const now = new Date();
+            const item = { title, desc: content || '双方已确认遵守。', date: `${now.getFullYear()}年${now.getMonth()+1}月` };
+            globalState.consensusList.push(item);
+            renderConsensus();
+            broadcastSyncAction({ type: 'ADD_CONSENSUS', item });
+
+            document.getElementById('consensusTitle').value = '';
+            document.getElementById('consensusContent').value = '';
+            alert('新共识已归档并同步全家！');
+        }
+
+        function openRoomModal() { document.getElementById('roomModalDialog').style.display = 'flex'; document.getElementById('customRoomInput').focus(); }
+        function closeRoomModal() { document.getElementById('roomModalDialog').style.display = 'none'; }
+        function confirmCreateRoom() {
+            const val = document.getElementById('customRoomInput').value.trim();
+            const rolePrompt = document.getElementById('customRoleInput').value.trim() || '客观事实拆解员，用大白话讲清楚事实。';
+            if (!val) return;
+            const newRoomId = 'room-custom-' + Date.now();
+            globalState.roomRoles[newRoomId] = { tag: val + ' 顾问', prompt: rolePrompt };
+            globalState.chatRooms[newRoomId] = [];
+            const li = document.createElement('li');
+            li.className = 'nav-link';
+            li.onclick = function() { showChatPane(newRoomId, '💬 ' + val, '专项独立讨论视窗', this); };
+            li.innerHTML = `<div class="nav-link-content"><span>💬</span> ${escapeHtml(val)}</div>`;
+            document.getElementById('roomsList').appendChild(li);
+            broadcastSyncAction({ type: 'FULL_SYNC_STATE', state: globalState });
+            document.getElementById('customRoomInput').value = '';
+            document.getElementById('customRoleInput').value = '';
+            closeRoomModal();
+            li.click();
+        }
+
+        function openEditRoleModal() {
+            const roleCfg = globalState.roomRoles[currentRoomId] || { tag: '', prompt: '' };
+            document.getElementById('roleTagInput').value = roleCfg.tag;
+            document.getElementById('rolePromptInput').value = roleCfg.prompt;
+            document.getElementById('editRoleModal').style.display = 'flex';
+        }
+        function closeEditRoleModal() { document.getElementById('editRoleModal').style.display = 'none'; }
+        function saveRoomRoleConfig() {
+            const tag = document.getElementById('roleTagInput').value.trim() || '自定义角色';
+            const prompt = document.getElementById('rolePromptInput').value.trim() || '按客观大白话拆解。';
+            const roleCfg = { tag, prompt };
+            globalState.roomRoles[currentRoomId] = roleCfg;
+            document.getElementById('curRoomRoleTag').innerText = tag;
+            broadcastSyncAction({ type: 'UPDATE_ROLE_CONFIG', roomId: currentRoomId, roleCfg });
+            closeEditRoleModal();
+            alert('已更新并同步全家！');
+        }
+
+        function openAiConfigModal() {
+            document.getElementById('cfgBaseUrl').value = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
+            document.getElementById('cfgApiKey').value = localStorage.getItem('hub_api_key') || '';
+            document.getElementById('cfgModel').value = localStorage.getItem('hub_api_model') || 'deepseek-chat';
+            document.getElementById('aiConfigModal').style.display = 'flex';
+        }
+        function closeAiConfigModal() { document.getElementById('aiConfigModal').style.display = 'none'; }
+        function saveAiConfig() {
+            localStorage.setItem('hub_api_url', document.getElementById('cfgBaseUrl').value.trim());
+            localStorage.setItem('hub_api_key', document.getElementById('cfgApiKey').value.trim());
+            localStorage.setItem('hub_api_model', document.getElementById('cfgModel').value.trim());
+            closeAiConfigModal();
+            alert('AI 接口配置已保存在本地浏览器！');
+        }
+
+        function getRoomCodeFromUrl() {
+            const match = window.location.search.match(/room=([a-zA-Z0-9_-]+)/) || window.location.hash.match(/room=([a-zA-Z0-9_-]+)/);
+            return match ? match[1] : null;
+        }
+
+        function copyInviteLink() {
+            const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert(`已复制家庭共享邀请链接：\n${shareUrl}\n\n直接发给爸爸妈妈，他们打开即可实时加入同一个家庭空间！`);
+            }).catch(() => {
+                prompt("请复制以下链接发给爸妈：", shareUrl);
+            });
+        }
+
+        function changeRoomCode() {
+            const newCode = prompt("请输入您和家人的专属房间号（英文或数字）：", roomCode);
+            if (newCode && newCode.trim() && newCode.trim() !== roomCode) {
+                roomCode = newCode.trim();
+                window.location.search = `?room=${roomCode}`;
+            }
+        }
+
+        function escapeHtml(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+        document.getElementById('mainChatInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitMessage(false);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const btn = document.querySelector(`.btn-${currentActiveRole}`);
+            if (btn) changeRole(currentActiveRole, btn);
+            initCloudSync();
+        });
+    </script>
+</body>
+</html>
