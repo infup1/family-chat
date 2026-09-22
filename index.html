@@ -201,14 +201,16 @@
             line-height: 1.4;
         }
 
-        /* 2. 主体工作区 */
+        /* 2. 主体工作区容器 */
         .main-stage {
             flex: 1;
+            min-width: 0;
             background: var(--bg-surface);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-outer);
             box-shadow: var(--shadow-subtle);
             display: flex;
+            flex-direction: column;
             overflow: hidden;
             position: relative;
         }
@@ -217,6 +219,9 @@
             width: 100%;
             height: 100%;
             display: none;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
         }
         .view-content-pane.active-pane { display: flex; }
 
@@ -225,6 +230,7 @@
             grid-template-columns: 1fr 340px;
             width: 100%;
             height: 100%;
+            min-width: 0;
         }
 
         .chat-flow-column {
@@ -232,6 +238,7 @@
             flex-direction: column;
             border-right: 1px solid var(--border-light);
             height: 100%;
+            min-width: 0;
             overflow: hidden;
         }
 
@@ -243,6 +250,8 @@
             align-items: center;
             background: #ffffff;
             gap: 12px;
+            flex-shrink: 0;
+            width: 100%;
         }
         .header-title-box h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
         .header-title-box p { font-size: 12px; color: var(--text-subtle); margin-top: 2px; }
@@ -290,6 +299,7 @@
             flex-direction: column;
             gap: 18px;
             background: #faf9f6;
+            min-width: 0;
         }
 
         .msg-container { display: flex; gap: 12px; max-width: 94%; }
@@ -310,7 +320,7 @@
         .av-dad { background: #ccfbf1; color: #115e59; }
         .av-ai { background: #292524; color: #fafaf9; }
 
-        .msg-bubble-wrap { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .msg-bubble-wrap { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
         .msg-author-info { font-size: 11.5px; color: var(--text-subtle); display: flex; gap: 6px; }
         .msg-author-info b { color: var(--text-secondary); }
 
@@ -323,6 +333,7 @@
             background: #ffffff;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-card);
+            word-break: break-word;
         }
         .b-me { border-left: 3px solid #3b82f6; }
         .b-mom { border-left: 3px solid #ef4444; }
@@ -347,6 +358,7 @@
             margin-bottom: 8px;
             color: var(--text-secondary);
             white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .chat-action-bar {
@@ -356,6 +368,7 @@
             display: flex;
             flex-direction: column;
             gap: 9px;
+            flex-shrink: 0;
         }
         .identity-selector { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
         .id-button {
@@ -396,6 +409,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.2s;
+            white-space: nowrap;
         }
         .btn-dispatch:hover { opacity: 0.9; }
 
@@ -406,6 +420,7 @@
             flex-direction: column;
             gap: 14px;
             overflow-y: auto;
+            min-width: 0;
         }
         .status-block {
             background: #ffffff;
@@ -433,14 +448,17 @@
         .chip-issue { background: #f5f5f4; color: #292524; }
         .chip-flaw { background: #fee2e2; color: #991b1b; }
 
+        /* 通用独立视图排版：必须纵向流式且自适应 */
         .single-view-body {
             flex: 1;
-            padding: 28px;
+            padding: 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             background: #faf9f6;
+            width: 100%;
+            min-width: 0;
         }
 
         .inline-add-box {
@@ -451,10 +469,11 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-bottom: 12px;
+            width: 100%;
         }
         .inline-add-box input, .inline-add-box textarea, .inline-add-box select {
-            padding: 8px 12px;
+            width: 100%;
+            padding: 9px 12px;
             border-radius: 8px;
             border: 1px solid var(--border-light);
             font-size: 13px;
@@ -466,7 +485,7 @@
             border-color: #292524;
         }
 
-        .tab-switcher { display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; }
+        .tab-switcher { display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; width: 100%; flex-shrink: 0; }
         .tab-tag {
             padding: 7px 14px;
             border-radius: var(--radius-inner);
@@ -487,11 +506,12 @@
             overflow: hidden;
             display: none;
             box-shadow: var(--shadow-card);
+            width: 100%;
         }
         .table-display-card.active-table { display: block; }
         .ui-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .ui-table th { background: #fcfbf9; text-align: left; padding: 11px 16px; color: var(--text-subtle); border-bottom: 1px solid var(--border-light); font-weight: 600; font-size: 12px; }
-        .ui-table td { padding: 14px 16px; border-bottom: 1px solid #f5f5f4; line-height: 1.55; vertical-align: top; color: var(--text-secondary); }
+        .ui-table td { padding: 14px 16px; border-bottom: 1px solid #f5f5f4; line-height: 1.55; vertical-align: top; color: var(--text-secondary); word-break: break-word; }
 
         .data-card {
             background: #ffffff;
@@ -499,6 +519,7 @@
             border-radius: var(--radius-inner);
             padding: 16px;
             box-shadow: var(--shadow-card);
+            width: 100%;
         }
         .source-pill {
             font-size: 11px;
@@ -512,9 +533,9 @@
         .perm-open { background: #f0fdf4; color: #166534; }
         .perm-hidden { background: #fef2f2; color: #991b1b; }
 
-        .timeline-container { display: flex; flex-direction: column; gap: 14px; position: relative; margin-top: 6px; }
+        .timeline-container { display: flex; flex-direction: column; gap: 14px; position: relative; margin-top: 6px; width: 100%; }
         .timeline-container::before { content: ''; position: absolute; left: 14px; top: 12px; bottom: 12px; width: 1px; background: var(--border-light); }
-        .timeline-node { display: flex; gap: 14px; position: relative; }
+        .timeline-node { display: flex; gap: 14px; position: relative; width: 100%; }
         .timeline-index {
             width: 28px;
             height: 28px;
@@ -539,6 +560,8 @@
             font-size: 13px;
             line-height: 1.6;
             box-shadow: var(--shadow-card);
+            min-width: 0;
+            word-break: break-word;
         }
         .timeline-time { font-size: 11.5px; color: var(--text-subtle); margin-bottom: 4px; font-weight: 600; }
 
@@ -570,6 +593,7 @@
             padding: 24px;
             text-align: center;
             line-height: 1.6;
+            width: 100%;
         }
     </style>
 </head>
@@ -723,7 +747,7 @@
 
         <!-- 视窗 2: 每个人问题点独立表 -->
         <section class="view-content-pane" id="pane-tables">
-            <div class="header-bar" style="width: 100%;">
+            <div class="header-bar">
                 <div class="header-title-box">
                     <h3>📊 每个人问题点独立分析表格 (云端同步)</h3>
                     <p>每位成员的问题点完全独立分开呈现，支持全家随时添加与查看</p>
@@ -812,7 +836,7 @@
 
         <!-- 视窗 3: 关于我 (双来源与权限分级) -->
         <section class="view-content-pane" id="pane-profile">
-            <div class="header-bar" style="width: 100%;">
+            <div class="header-bar">
                 <div class="header-title-box">
                     <h3>👤 关于我的资料库 (云端共享)</h3>
                     <p>填写性格、作息、雷区与沟通边界，AI 与长辈将依据此资料进行沟通</p>
@@ -824,7 +848,7 @@
                     <input type="text" id="profileTitleInput" placeholder="资料标题（例如：我的性格与MBTI、我的作息习惯、我的沟通禁忌词等）">
                     <textarea id="profileDescInput" rows="2" placeholder="具体详细说明..."></textarea>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="profilePermSelect">
+                        <select id="profilePermSelect" style="width: auto;">
                             <option value="open">父母与 AI 公开可见</option>
                             <option value="hidden">仅 AI 可见 (保密底牌)</option>
                         </select>
@@ -843,7 +867,7 @@
 
         <!-- 视窗 4: AI 记忆档案与历史共识库 -->
         <section class="view-content-pane" id="pane-memory">
-            <div class="header-bar" style="width: 100%;">
+            <div class="header-bar">
                 <div class="header-title-box">
                     <h3>🧠 AI 长期记忆档案与历史共识库 (不可推翻)</h3>
                     <p>全家已达成共识的事项沉淀为家庭规则，实时云端记录</p>
@@ -866,17 +890,17 @@
 
         <!-- 视窗 5: 发起家庭小问卷 -->
         <section class="view-content-pane" id="pane-survey">
-            <div class="header-bar" style="width: 100%;">
+            <div class="header-bar">
                 <div class="header-title-box">
                     <h3>📝 发起家庭小问卷 (实时同步到全家手机)</h3>
                     <p>你可以随时出具体问题发给父母填写，不搞形式打分，只求事实对齐</p>
                 </div>
             </div>
             <div class="single-view-body">
-                <div class="data-card" style="display: flex; flex-direction: column; gap: 10px;">
-                    <h4 style="font-size: 13.5px;">➕ 创建一份新的家庭调查</h4>
-                    <input type="text" id="surveyTopicInput" placeholder="问卷标题：例如【关于近期某件事情的想法】" style="padding: 10px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 13px; outline: none; background: #faf9f6;">
-                    <textarea id="surveyDetailInput" rows="3" placeholder="写下你想向爸妈了解的具体问题..." style="padding: 10px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 13px; outline: none; background: #faf9f6;"></textarea>
+                <div class="inline-add-box">
+                    <b style="font-size: 13px;">➕ 创建一份新的家庭调查</b>
+                    <input type="text" id="surveyTopicInput" placeholder="问卷标题：例如【关于近期某件事情的想法】">
+                    <textarea id="surveyDetailInput" rows="3" placeholder="写下你想向爸妈了解的具体问题..."></textarea>
                     <button class="btn-dispatch" style="align-self: flex-start; padding: 9px 18px;" onclick="sendSurveyForm()">一键发给爸妈填写</button>
                 </div>
 
