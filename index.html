@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>家庭共识空间 · Consensus Hub</title>
     <!-- 轻量级云端实时同步通信引擎 -->
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -47,6 +47,7 @@
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -59,7 +60,7 @@
             gap: 16px;
         }
 
-        /* 1. 左侧导航 */
+        /* 1. 左侧导航 (电脑端固定 / 手机端抽屉) */
         .nav-column {
             width: 260px;
             background: var(--bg-surface);
@@ -70,6 +71,8 @@
             padding: 18px 14px;
             box-shadow: var(--shadow-subtle);
             flex-shrink: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
         }
 
         .workspace-brand {
@@ -91,6 +94,7 @@
             justify-content: center;
             font-size: 15px;
             font-weight: 600;
+            flex-shrink: 0;
         }
         .brand-meta h2 { font-size: 14px; font-weight: 700; color: var(--text-primary); }
         .brand-meta p { font-size: 11px; color: var(--text-subtle); margin-top: 2px; }
@@ -143,7 +147,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 12px;
+            padding: 9px 12px;
             border-radius: var(--radius-inner);
             cursor: pointer;
             font-size: 13px;
@@ -163,7 +167,7 @@
             justify-content: center;
             gap: 6px;
             width: 100%;
-            padding: 8px;
+            padding: 9px;
             background: var(--bg-elevated);
             border: 1px dashed var(--border-light);
             border-radius: var(--radius-inner);
@@ -181,7 +185,7 @@
             align-items: center;
             gap: 6px;
             width: 100%;
-            padding: 7px 10px;
+            padding: 8px 10px;
             background: #faf9f6;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-inner);
@@ -199,6 +203,16 @@
             font-size: 11px;
             color: var(--text-tertiary);
             line-height: 1.4;
+        }
+
+        /* 抽屉遮罩 (移动端专享) */
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 90;
+            display: none;
+            backdrop-filter: blur(2px);
         }
 
         /* 2. 主体工作区容器 */
@@ -227,7 +241,7 @@
 
         .chat-split-grid {
             display: grid;
-            grid-template-columns: 1fr 340px;
+            grid-template-columns: 1fr 320px;
             width: 100%;
             height: 100%;
             min-width: 0;
@@ -243,44 +257,58 @@
         }
 
         .header-bar {
-            padding: 14px 20px;
+            padding: 12px 18px;
             border-bottom: 1px solid var(--border-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #ffffff;
-            gap: 12px;
+            gap: 10px;
             flex-shrink: 0;
             width: 100%;
         }
-        .header-title-box h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
-        .header-title-box p { font-size: 12px; color: var(--text-subtle); margin-top: 2px; }
+        .header-title-box { display: flex; flex-direction: column; min-width: 0; }
+        .header-title-box h3 { font-size: 14.5px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .header-title-box p { font-size: 11px; color: var(--text-subtle); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .header-actions-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .btn-mobile-menu {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 4px;
         }
 
         .btn-header-tool {
             background: #faf9f6;
             border: 1px solid var(--border-light);
-            padding: 5px 10px;
+            padding: 5px 9px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 4px;
             transition: all 0.15s;
+            white-space: nowrap;
         }
         .btn-header-tool:hover { background: #ffffff; border-color: var(--border-focus); color: var(--text-primary); }
         .btn-header-tool.active { background: #1c1917; color: #ffffff; border-color: #1c1917; }
 
         .public-inspect-banner {
-            font-size: 11px;
-            padding: 3px 8px;
+            font-size: 10px;
+            padding: 2px 6px;
             border-radius: 6px;
             background: #ecfdf5;
             color: #065f46;
@@ -293,15 +321,16 @@
         .ai-role-tag-box {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: #faf9f6;
             border: 1px solid var(--border-light);
-            padding: 5px 10px;
+            padding: 5px 8px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.15s;
+            white-space: nowrap;
         }
         .ai-role-tag-box:hover { border-color: #292524; background: #ffffff; }
         .ai-role-tag-box span.role-text {
@@ -310,50 +339,64 @@
             white-space: nowrap;
             color: #6d28d9;
             font-weight: 600;
+            max-width: 90px;
+        }
+
+        /* 移动端专属：当前争议抽屉折叠条 */
+        .mobile-status-toggle-bar {
+            display: none;
+            background: #faf9f6;
+            border-bottom: 1px solid var(--border-light);
+            padding: 8px 14px;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
         }
 
         /* 批量操作控制浮动条 */
         .batch-action-bar {
             background: #292524;
             color: #fafaf9;
-            padding: 8px 16px;
+            padding: 8px 14px;
             display: none;
             justify-content: space-between;
             align-items: center;
             font-size: 12px;
             animation: fadeIn 0.2s;
+            flex-shrink: 0;
         }
         .batch-action-bar.show { display: flex; }
         .batch-btn {
             background: #44403c;
             color: #fff;
             border: none;
-            padding: 4px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11.5px;
             cursor: pointer;
-            margin-left: 6px;
+            margin-left: 4px;
         }
         .batch-btn:hover { background: #57534e; }
         .batch-btn.danger { background: #991b1b; }
 
         .conversation-scroll {
             flex: 1;
-            padding: 24px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             background: #faf9f6;
             min-width: 0;
         }
 
         .msg-container {
             display: flex;
-            gap: 10px;
-            max-width: 95%;
+            gap: 8px;
+            max-width: 96%;
             position: relative;
-            group: 1;
         }
         .msg-container:hover .msg-hover-actions { opacity: 1; pointer-events: auto; }
 
@@ -362,17 +405,19 @@
             align-self: center;
             margin-right: 4px;
             cursor: pointer;
+            width: 16px;
+            height: 16px;
         }
         .selection-mode .msg-checkbox { display: inline-block; }
 
         .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 700;
             flex-shrink: 0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
@@ -385,19 +430,19 @@
         .msg-bubble-wrap {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
             flex: 1;
             min-width: 0;
             position: relative;
         }
-        .msg-author-info { font-size: 11.5px; color: var(--text-subtle); display: flex; gap: 6px; align-items: center; }
+        .msg-author-info { font-size: 11px; color: var(--text-subtle); display: flex; gap: 6px; align-items: center; }
         .msg-author-info b { color: var(--text-secondary); }
 
         .bubble-text {
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: var(--radius-inner);
             font-size: 13.5px;
-            line-height: 1.65;
+            line-height: 1.6;
             color: var(--text-primary);
             background: #ffffff;
             border: 1px solid var(--border-light);
@@ -414,7 +459,7 @@
             border: 1px solid #d6d3d1;
             border-left: 3px solid #292524;
             border-radius: var(--radius-inner);
-            padding: 16px 18px;
+            padding: 14px 16px;
             width: 100%;
             box-shadow: var(--shadow-card);
         }
@@ -422,19 +467,19 @@
             background: #faf9f6;
             border: 1px solid var(--border-light);
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-size: 12.5px;
-            line-height: 1.6;
-            margin-bottom: 8px;
+            line-height: 1.55;
+            margin-bottom: 6px;
             color: var(--text-secondary);
             white-space: pre-wrap;
             word-break: break-word;
         }
 
-        /* 消息悬浮操作栏 */
+        /* 消息悬浮/触控操作栏 */
         .msg-hover-actions {
             position: absolute;
-            right: 8px;
+            right: 4px;
             top: -12px;
             background: #ffffff;
             border: 1px solid var(--border-light);
@@ -459,61 +504,53 @@
         }
         .action-icon-btn:hover { background: #f5f4ef; color: var(--text-primary); }
 
-        /* 正在思考回复动画 */
         .ai-thinking-box {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 12.5px;
+            font-size: 12px;
             color: #6d28d9;
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: #f5f3ff;
             border: 1px dashed #ddd6fe;
             border-radius: var(--radius-inner);
             animation: pulse 1.5s infinite;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
 
         .chat-action-bar {
-            padding: 14px 20px 18px;
+            padding: 10px 14px 14px;
             border-top: 1px solid var(--border-light);
             background: #ffffff;
             display: flex;
             flex-direction: column;
-            gap: 9px;
+            gap: 8px;
             flex-shrink: 0;
         }
-        .identity-selector { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
+        .identity-selector { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-tertiary); overflow-x: auto; white-space: nowrap; }
         .id-button {
             border: 1px solid var(--border-light);
             background: var(--bg-elevated);
-            padding: 4px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--text-secondary);
             transition: all 0.15s;
+            white-space: nowrap;
         }
         .id-button.active.btn-me { background: var(--role-me-bg); border-color: var(--role-me-border); color: var(--role-me-text); font-weight: 600; }
         .id-button.active.btn-mom { background: var(--role-mom-bg); border-color: var(--role-mom-border); color: var(--role-mom-text); font-weight: 600; }
         .id-button.active.btn-dad { background: var(--role-dad-bg); border-color: var(--role-dad-border); color: var(--role-dad-text); font-weight: 600; }
 
-        .input-row-box { display: flex; gap: 8px; }
+        .input-row-box { display: flex; gap: 6px; }
         .chat-input-textarea {
             flex: 1;
-            height: 44px;
-            padding: 10px 14px;
+            height: 40px;
+            padding: 8px 12px;
             border-radius: var(--radius-inner);
             border: 1px solid var(--border-light);
             background: #faf9f6;
-            font-size: 13.5px;
+            font-size: 13px;
             outline: none;
             resize: none;
             color: var(--text-primary);
@@ -521,42 +558,37 @@
         .chat-input-textarea:focus { border-color: #292524; background: #ffffff; }
         
         .btn-dispatch {
-            padding: 0 16px;
+            padding: 0 12px;
             background: #1c1917;
             color: #fafaf9;
             border: none;
             border-radius: var(--radius-inner);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
             white-space: nowrap;
         }
-        .btn-dispatch:hover { opacity: 0.9; }
-
         .btn-dispatch-ai {
-            padding: 0 16px;
+            padding: 0 12px;
             background: #6d28d9;
             color: #ffffff;
             border: none;
             border-radius: var(--radius-inner);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
         }
-        .btn-dispatch-ai:hover { opacity: 0.9; }
 
         .right-status-column {
-            padding: 20px;
+            padding: 16px;
             background: #faf9f6;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             overflow-y: auto;
             min-width: 0;
         }
@@ -564,22 +596,22 @@
             background: #ffffff;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-inner);
-            padding: 14px;
+            padding: 12px;
             box-shadow: var(--shadow-card);
         }
         .status-block h4 {
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
         .meta-chip {
             display: inline-block;
             font-size: 11px;
-            padding: 2px 7px;
+            padding: 2px 6px;
             border-radius: var(--radius-badge);
             font-weight: 600;
         }
@@ -589,11 +621,11 @@
         /* 通用独立视图排版 */
         .single-view-body {
             flex: 1;
-            padding: 24px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             background: #faf9f6;
             width: 100%;
             min-width: 0;
@@ -603,18 +635,18 @@
             background: #ffffff;
             border: 1px dashed #d6d3d1;
             border-radius: var(--radius-inner);
-            padding: 16px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
         .inline-add-box input, .inline-add-box textarea, .inline-add-box select {
             width: 100%;
-            padding: 9px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
             border: 1px solid var(--border-light);
-            font-size: 13px;
+            font-size: 12.5px;
             outline: none;
             background: #faf9f6;
         }
@@ -623,17 +655,18 @@
             border-color: #292524;
         }
 
-        .tab-switcher { display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; width: 100%; flex-shrink: 0; }
+        .tab-switcher { display: flex; gap: 6px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; width: 100%; flex-shrink: 0; overflow-x: auto; white-space: nowrap; }
         .tab-tag {
-            padding: 7px 14px;
+            padding: 6px 12px;
             border-radius: var(--radius-inner);
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
             font-weight: 500;
             background: #ffffff;
             border: 1px solid var(--border-light);
             transition: all 0.15s;
+            white-space: nowrap;
         }
         .tab-tag.active { background: #1c1917; color: #fafaf9; border-color: #1c1917; font-weight: 600; }
 
@@ -647,36 +680,36 @@
             width: 100%;
         }
         .table-display-card.active-table { display: block; }
-        .ui-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .ui-table th { background: #fcfbf9; text-align: left; padding: 11px 16px; color: var(--text-subtle); border-bottom: 1px solid var(--border-light); font-weight: 600; font-size: 12px; }
-        .ui-table td { padding: 14px 16px; border-bottom: 1px solid #f5f5f4; line-height: 1.55; vertical-align: top; color: var(--text-secondary); word-break: break-word; }
+        .ui-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .ui-table th { background: #fcfbf9; text-align: left; padding: 10px 12px; color: var(--text-subtle); border-bottom: 1px solid var(--border-light); font-weight: 600; font-size: 11px; white-space: nowrap; }
+        .ui-table td { padding: 10px 12px; border-bottom: 1px solid #f5f5f4; line-height: 1.5; vertical-align: top; color: var(--text-secondary); word-break: break-word; }
 
         .data-card {
             background: #ffffff;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-inner);
-            padding: 16px;
+            padding: 14px;
             box-shadow: var(--shadow-card);
             width: 100%;
         }
         .source-pill {
-            font-size: 11px;
-            padding: 2px 7px;
+            font-size: 10.5px;
+            padding: 2px 6px;
             border-radius: var(--radius-badge);
             font-weight: 700;
-            margin-right: 6px;
+            margin-right: 4px;
         }
         .src-user-style { background: #f5f5f4; color: #292524; border: 1px solid #e7e5e4; }
-        .perm-tag { font-size: 10.5px; padding: 2px 6px; border-radius: var(--radius-badge); float: right; font-weight: 600; }
+        .perm-tag { font-size: 10px; padding: 1px 5px; border-radius: var(--radius-badge); float: right; font-weight: 600; }
         .perm-open { background: #f0fdf4; color: #166534; }
         .perm-hidden { background: #fef2f2; color: #991b1b; }
 
-        .timeline-container { display: flex; flex-direction: column; gap: 14px; position: relative; margin-top: 6px; width: 100%; }
-        .timeline-container::before { content: ''; position: absolute; left: 14px; top: 12px; bottom: 12px; width: 1px; background: var(--border-light); }
-        .timeline-node { display: flex; gap: 14px; position: relative; width: 100%; }
+        .timeline-container { display: flex; flex-direction: column; gap: 12px; position: relative; margin-top: 6px; width: 100%; }
+        .timeline-container::before { content: ''; position: absolute; left: 12px; top: 10px; bottom: 10px; width: 1px; background: var(--border-light); }
+        .timeline-node { display: flex; gap: 10px; position: relative; width: 100%; }
         .timeline-index {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #ffffff;
             border: 1px solid #292524;
@@ -684,7 +717,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 700;
             flex-shrink: 0;
             z-index: 1;
@@ -694,35 +727,35 @@
             background: #ffffff;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-inner);
-            padding: 12px 16px;
-            font-size: 13px;
-            line-height: 1.6;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            line-height: 1.55;
             box-shadow: var(--shadow-card);
             min-width: 0;
             word-break: break-word;
         }
-        .timeline-time { font-size: 11.5px; color: var(--text-subtle); margin-bottom: 4px; font-weight: 600; }
+        .timeline-time { font-size: 11px; color: var(--text-subtle); margin-bottom: 2px; font-weight: 600; }
 
         /* 问卷专用组件样式 */
         .survey-item-card {
             background: #ffffff;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-inner);
-            padding: 16px;
+            padding: 14px;
             box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
         }
         .survey-question-block {
             background: #faf9f6;
             border: 1px solid var(--border-light);
             border-radius: 8px;
-            padding: 12px 14px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .survey-answers-list {
             display: flex;
@@ -734,49 +767,131 @@
             background: #ffffff;
             border: 1px solid var(--border-light);
             border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 12px;
-            line-height: 1.5;
+            padding: 6px 8px;
+            font-size: 11.5px;
+            line-height: 1.45;
         }
 
         .modal-shade {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(28, 25, 23, 0.3);
+            background: rgba(28, 25, 23, 0.4);
             backdrop-filter: blur(2px);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 999;
+            padding: 16px;
         }
         .modal-window {
             background: #ffffff;
-            width: 440px;
-            max-height: 90vh;
+            width: 100%;
+            max-width: 420px;
+            max-height: 85vh;
             overflow-y: auto;
             border-radius: var(--radius-outer);
-            padding: 22px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             border: 1px solid var(--border-light);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
         }
         
         .empty-hint {
             color: var(--text-subtle);
-            font-size: 13px;
-            padding: 24px;
+            font-size: 12.5px;
+            padding: 20px;
             text-align: center;
             line-height: 1.6;
             width: 100%;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ================= 📱 移动端屏幕核心适配规则 (<= 768px) ================= */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                gap: 0;
+            }
+            .main-stage {
+                border-radius: 0;
+                border: none;
+            }
+            /* 侧边栏转为抽屉 */
+            .nav-column {
+                position: fixed;
+                top: 0; bottom: 0; left: 0;
+                width: 270px;
+                border-radius: 0;
+                border: none;
+                border-right: 1px solid var(--border-light);
+                transform: translateX(-100%);
+                box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+            }
+            .nav-column.drawer-open {
+                transform: translateX(0);
+            }
+            .drawer-overlay.show {
+                display: block;
+            }
+            .btn-mobile-menu {
+                display: inline-flex;
+            }
+
+            /* 聊天区分屏转为单列，右侧状态栏折叠 */
+            .chat-split-grid {
+                grid-template-columns: 1fr;
+            }
+            .right-status-column {
+                display: none;
+            }
+            .right-status-column.mobile-expanded {
+                display: flex;
+                position: absolute;
+                top: 52px; left: 0; right: 0; bottom: 0;
+                background: #faf9f6;
+                z-index: 40;
+            }
+            .mobile-status-toggle-bar {
+                display: flex;
+            }
+
+            /* 移动端触摸按钮优化 */
+            .msg-hover-actions {
+                opacity: 1;
+                pointer-events: auto;
+                position: static;
+                margin-top: 4px;
+                align-self: flex-start;
+                background: #faf9f6;
+                box-shadow: none;
+                border: 1px solid var(--border-light);
+            }
+            .header-bar {
+                padding: 10px 14px;
+            }
+            .conversation-scroll {
+                padding: 12px;
+            }
+            .chat-action-bar {
+                padding: 8px 12px 12px;
+            }
+            .single-view-body {
+                padding: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. 左侧导航 -->
-    <aside class="nav-column">
+    <!-- 移动端侧滑抽屉遮罩 -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="toggleMobileDrawer(false)"></div>
+
+    <!-- 1. 左侧导航 (电脑端常驻 / 手机端侧滑抽屉) -->
+    <aside class="nav-column" id="mainNavDrawer">
         <div class="workspace-brand">
             <div class="brand-avatar">C</div>
             <div class="brand-meta">
@@ -785,7 +900,6 @@
             </div>
         </div>
 
-        <!-- 实时云端同步与房间控制卡 -->
         <div class="sync-status-card">
             <div class="sync-row">
                 <span style="display: flex; align-items: center; gap: 6px; font-weight: 600;">
@@ -855,84 +969,90 @@
         
         <!-- 视窗 1: 聊天主窗口 -->
         <section class="view-content-pane active-pane" id="pane-chat">
+            
+            <div class="header-bar">
+                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
+                <div class="header-title-box">
+                    <h3 id="paneChatTitle">
+                        👥 三人实时主群聊
+                        <span class="public-inspect-banner" id="publicInspectBadge" style="display: none;">公开</span>
+                    </h3>
+                    <p id="paneChatDesc">三方实时群聊，AI 实时抓漏洞与拆解</p>
+                </div>
+
+                <div class="header-actions-group">
+                    <button class="btn-header-tool" id="btnToggleSelectMode" onclick="toggleSelectionMode()">
+                        <span>☑️</span> 多选
+                    </button>
+                    <button class="btn-header-tool" onclick="triggerAiAnalyzeCurrent()">
+                        <span>⚡</span> AI分析
+                    </button>
+                    <div class="ai-role-tag-box" onclick="openEditRoleModal()" title="自定义 AI 角色">
+                        <span>🎭:</span>
+                        <span class="role-text" id="curRoomRoleTag">拆解员</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 手机端状态栏快速折叠条 -->
+            <div class="mobile-status-toggle-bar" onclick="toggleMobileStatusView()">
+                <span>📌 查看当前争议与 AI 事实拆解</span>
+                <span id="mobileStatusToggleIcon">▼</span>
+            </div>
+
+            <!-- 批量多选浮动操作条 -->
+            <div class="batch-action-bar" id="batchActionBar">
+                <span>已选 <b id="batchSelectedCount">0</b> 条</span>
+                <div>
+                    <button class="batch-btn" onclick="batchCopyMessages()">📋 复制</button>
+                    <button class="batch-btn danger" onclick="batchDeleteMessages()">🗑️ 删除</button>
+                    <button class="batch-btn" onclick="toggleSelectionMode()">✕</button>
+                </div>
+            </div>
+
             <div class="chat-split-grid">
                 <div class="chat-flow-column">
-                    <div class="header-bar">
-                        <div class="header-title-box">
-                            <h3 id="paneChatTitle">
-                                👥 三人实时主群聊
-                                <span class="public-inspect-banner" id="publicInspectBadge" style="display: none;">全员公开查阅中</span>
-                            </h3>
-                            <p id="paneChatDesc">孩子、妈妈、爸爸三方实时群聊，AI 实时抓漏洞与客观拆解</p>
-                        </div>
-
-                        <div class="header-actions-group">
-                            <button class="btn-header-tool" id="btnToggleSelectMode" onclick="toggleSelectionMode()">
-                                <span>☑️</span> 多选
-                            </button>
-                            <button class="btn-header-tool" onclick="triggerAiAnalyzeCurrent()">
-                                <span>⚡</span> 呼叫 AI 分析
-                            </button>
-                            <div class="ai-role-tag-box" onclick="openEditRoleModal()" title="点击自定义该窗口中 AI 扮演的角色">
-                                <span>🎭:</span>
-                                <span class="role-text" id="curRoomRoleTag">客观事实拆解员</span>
-                                <span style="font-size: 10px; color: var(--text-subtle);">✏️</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 批量多选操作悬浮条 -->
-                    <div class="batch-action-bar" id="batchActionBar">
-                        <span>已勾选 <b id="batchSelectedCount">0</b> 条消息</span>
-                        <div>
-                            <button class="batch-btn" onclick="batchCopyMessages()">📋 合并复制</button>
-                            <button class="batch-btn danger" onclick="batchDeleteMessages()">🗑️ 批量删除</button>
-                            <button class="batch-btn" onclick="toggleSelectionMode()">✕ 取消</button>
-                        </div>
-                    </div>
-
-                    <div class="conversation-scroll" id="conversationStream">
-                        <!-- 动态渲染聊天流 -->
-                    </div>
+                    <div class="conversation-scroll" id="conversationStream"></div>
 
                     <div class="chat-action-bar">
                         <div class="identity-selector">
-                            <span>我的当前身份：</span>
+                            <span>身份：</span>
                             <button class="id-button active btn-me" onclick="changeRole('me', this)">👤 我 (孩子)</button>
                             <button class="id-button btn-mom" onclick="changeRole('mom', this)">👩 妈妈</button>
                             <button class="id-button btn-dad" onclick="changeRole('dad', this)">👨 爸爸</button>
                         </div>
                         <div class="input-row-box">
                             <textarea id="mainChatInput" class="chat-input-textarea" placeholder="输入发言内容..."></textarea>
-                            <button class="btn-dispatch" id="btnSendMsg" onclick="submitMessage(false)">💬 发送消息</button>
-                            <button class="btn-dispatch-ai" id="btnSendMsgAi" onclick="submitMessage(true)">🤖 发送并呼叫 AI</button>
+                            <button class="btn-dispatch" id="btnSendMsg" onclick="submitMessage(false)">💬 发送</button>
+                            <button class="btn-dispatch-ai" id="btnSendMsgAi" onclick="submitMessage(true)">🤖+AI</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="right-status-column">
+                <!-- 右侧状态栏 (手机端折叠 / 电脑端常驻) -->
+                <div class="right-status-column" id="rightStatusCol">
                     <div class="status-block">
                         <h4><span>📌</span> 当前讨论事件</h4>
-                        <span class="meta-chip chip-issue" id="statusEventText">等待输入最新讨论内容</span>
+                        <span class="meta-chip chip-issue" id="statusEventText">等待输入讨论内容</span>
                     </div>
 
                     <div class="status-block" style="border-left: 3px solid #ef4444;">
                         <h4><span>⚠️</span> 谁有问题 & 问题在哪</h4>
-                        <div id="statusFlawText" style="font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); margin-top: 6px;">
-                            点击【🤖 发送并呼叫 AI】或【⚡ 呼叫 AI 分析】后，AI 将在此客观指出表达中的逻辑漏洞与误区。
+                        <div id="statusFlawText" style="font-size: 12px; line-height: 1.5; color: var(--text-secondary); margin-top: 4px;">
+                            点击【🤖+AI】或【⚡ AI分析】后，AI 将在此客观指出逻辑漏洞。
                         </div>
                     </div>
 
                     <div class="status-block" style="border-left: 3px solid #0d9488;">
                         <h4><span>🎯</span> 双方真实诉求</h4>
-                        <div id="statusDemandText" style="font-size: 12.5px; line-height: 1.55; color: var(--text-secondary);">
-                            AI 将在此提炼双方不带情绪的实际需求。
+                        <div id="statusDemandText" style="font-size: 12px; line-height: 1.5; color: var(--text-secondary);">
+                            提炼双方不带情绪的实际需求。
                         </div>
                     </div>
 
                     <div class="status-block">
                         <h4><span>👉</span> AI 建议的解决办法</h4>
-                        <p id="statusActionText" style="font-size: 12.5px; line-height: 1.55; color: var(--text-primary); font-weight: 600;">
+                        <p id="statusActionText" style="font-size: 12px; line-height: 1.5; color: var(--text-primary); font-weight: 600;">
                             就事论事，一次只谈眼前的一件事。
                         </p>
                     </div>
@@ -943,9 +1063,10 @@
         <!-- 视窗 2: 每个人问题点独立表 -->
         <section class="view-content-pane" id="pane-tables">
             <div class="header-bar">
+                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
-                    <h3>📊 每个人问题点独立分析表格 (云端同步)</h3>
-                    <p>每位成员的问题点完全独立分开呈现，支持全家随时添加与查看</p>
+                    <h3>📊 每个人问题点独立分析表</h3>
+                    <p>各自独立分开呈现，全家云端同步</p>
                 </div>
             </div>
             <div class="single-view-body">
@@ -956,103 +1077,89 @@
                 </div>
 
                 <div class="table-display-card active-table" id="tab-mom-view">
-                    <div style="padding: 16px;">
+                    <div style="padding: 12px;">
                         <div class="inline-add-box">
-                            <b style="font-size: 13px;">➕ 添加妈妈的新问题点 / 新案例</b>
-                            <input type="text" id="momIssue" placeholder="问题表现（例如：具体哪句话或行为让沟通变难）">
+                            <b style="font-size: 12.5px;">➕ 添加妈妈的新问题点 / 新案例</b>
+                            <input type="text" id="momIssue" placeholder="问题表现（如：具体哪句话让沟通变难）">
                             <input type="text" id="momLogic" placeholder="背后的逻辑漏洞 / 认知错误">
                             <input type="text" id="momRefuse" placeholder="不认错的典型话术">
                             <input type="text" id="momAdvice" placeholder="AI 建议的正确做法">
-                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 14px; font-size: 12px;" onclick="addRowToTable('mom', 'momIssue', 'momLogic', 'momRefuse', 'momAdvice')">添加到妈妈表并同步云端</button>
+                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 12px;" onclick="addRowToTable('mom', 'momIssue', 'momLogic', 'momRefuse', 'momAdvice')">添加到妈妈表</button>
                         </div>
                     </div>
-                    <table class="ui-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%;">问题表现</th>
-                                <th style="width: 30%;">背后的逻辑漏洞 / 认知错误</th>
-                                <th style="width: 25%;">不认错的典型话术</th>
-                                <th style="width: 25%;">AI 建议的正确做法</th>
-                            </tr>
-                        </thead>
-                        <tbody id="momTableBody"></tbody>
-                    </table>
+                    <div style="overflow-x: auto;">
+                        <table class="ui-table">
+                            <thead><tr><th>问题表现</th><th>逻辑漏洞</th><th>不认错话术</th><th>建议做法</th></tr></thead>
+                            <tbody id="momTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="table-display-card" id="tab-dad-view">
-                    <div style="padding: 16px;">
+                    <div style="padding: 12px;">
                         <div class="inline-add-box">
-                            <b style="font-size: 13px;">➕ 添加爸爸的新问题点 / 新案例</b>
-                            <input type="text" id="dadIssue" placeholder="问题表现（例如：具体哪句话或行为让沟通变难）">
+                            <b style="font-size: 12.5px;">➕ 添加爸爸的新问题点 / 新案例</b>
+                            <input type="text" id="dadIssue" placeholder="问题表现（如：关键时刻只劝我退让）">
                             <input type="text" id="dadLogic" placeholder="背后的逻辑漏洞 / 认知错误">
                             <input type="text" id="dadRefuse" placeholder="不认错的典型话术">
                             <input type="text" id="dadAdvice" placeholder="AI 建议的正确做法">
-                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 14px; font-size: 12px;" onclick="addRowToTable('dad', 'dadIssue', 'dadLogic', 'dadRefuse', 'dadAdvice')">添加到爸爸表并同步云端</button>
+                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 12px;" onclick="addRowToTable('dad', 'dadIssue', 'dadLogic', 'dadRefuse', 'dadAdvice')">添加到爸爸表</button>
                         </div>
                     </div>
-                    <table class="ui-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%;">问题表现</th>
-                                <th style="width: 30%;">背后的逻辑漏洞 / 认知错误</th>
-                                <th style="width: 25%;">不认错的典型话术</th>
-                                <th style="width: 25%;">AI 建议的正确做法</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dadTableBody"></tbody>
-                    </table>
+                    <div style="overflow-x: auto;">
+                        <table class="ui-table">
+                            <thead><tr><th>问题表现</th><th>逻辑漏洞</th><th>不认错话术</th><th>建议做法</th></tr></thead>
+                            <tbody id="dadTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="table-display-card" id="tab-me-view">
-                    <div style="padding: 16px;">
+                    <div style="padding: 12px;">
                         <div class="inline-add-box">
-                            <b style="font-size: 13px;">➕ 添加我的新问题点 / 反应模式</b>
-                            <input type="text" id="meIssue" placeholder="问题表现（例如：容易产生抵触情绪的具体场景）">
+                            <b style="font-size: 12.5px;">➕ 添加我的新问题点 / 反应模式</b>
+                            <input type="text" id="meIssue" placeholder="问题表现（如：容易产生抵触的场景）">
                             <input type="text" id="meLogic" placeholder="背后的逻辑漏洞 / 认知错误">
                             <input type="text" id="meRefuse" placeholder="引发误解的行为">
                             <input type="text" id="meAdvice" placeholder="AI 建议的正确做法">
-                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 14px; font-size: 12px;" onclick="addRowToTable('me', 'meIssue', 'meLogic', 'meRefuse', 'meAdvice')">添加到我的表并同步云端</button>
+                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 12px;" onclick="addRowToTable('me', 'meIssue', 'meLogic', 'meRefuse', 'meAdvice')">添加到我的表</button>
                         </div>
                     </div>
-                    <table class="ui-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%;">问题表现</th>
-                                <th style="width: 30%;">背后的逻辑漏洞 / 认知错误</th>
-                                <th style="width: 25%;">引发误解的行为</th>
-                                <th style="width: 25%;">AI 建议的正确做法</th>
-                            </tr>
-                        </thead>
-                        <tbody id="meTableBody"></tbody>
-                    </table>
+                    <div style="overflow-x: auto;">
+                        <table class="ui-table">
+                            <thead><tr><th>问题表现</th><th>逻辑漏洞</th><th>引发误解行为</th><th>建议做法</th></tr></thead>
+                            <tbody id="meTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 视窗 3: 关于我 (双来源与权限分级) -->
+        <!-- 视窗 3: 关于我 -->
         <section class="view-content-pane" id="pane-profile">
             <div class="header-bar">
+                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
                     <h3>👤 关于我的资料库 (云端共享)</h3>
-                    <p>填写性格、作息、雷区与沟通边界，AI 与长辈将依据此资料进行沟通</p>
+                    <p>性格、作息、雷区与沟通边界</p>
                 </div>
             </div>
             <div class="single-view-body">
                 <div class="inline-add-box">
-                    <b style="font-size: 13px;">➕ 补充一条关于我的资料 / 沟通底线</b>
-                    <input type="text" id="profileTitleInput" placeholder="资料标题（例如：我的性格与MBTI、我的作息习惯、我的沟通禁忌词等）">
-                    <textarea id="profileDescInput" rows="2" placeholder="具体详细说明..."></textarea>
-                    <div style="display: flex; gap: 10px; align-items: center;">
+                    <b style="font-size: 12.5px;">➕ 补充一条关于我的资料 / 沟通底线</b>
+                    <input type="text" id="profileTitleInput" placeholder="资料标题（如：我的性格MBTI、作息、禁忌词等）">
+                    <textarea id="profileDescInput" rows="2" placeholder="详细说明..."></textarea>
+                    <div style="display: flex; gap: 8px; align-items: center;">
                         <select id="profilePermSelect" style="width: auto;">
-                            <option value="open">父母与 AI 公开可见</option>
+                            <option value="open">全家公开可见</option>
                             <option value="hidden">仅 AI 可见 (保密底牌)</option>
                         </select>
-                        <button class="btn-dispatch" style="padding: 6px 14px; font-size: 12px;" onclick="addNewProfileItem()">保存并同步云端</button>
+                        <button class="btn-dispatch" style="padding: 6px 12px;" onclick="addNewProfileItem()">保存资料</button>
                     </div>
                 </div>
 
                 <div class="data-card">
-                    <h4 style="font-size: 13.5px; margin-bottom: 10px;">
+                    <h4 style="font-size: 13px; margin-bottom: 8px;">
                         <span class="source-pill src-user-style">✍️ 个人资料与底线清单</span>
                     </h4>
                     <div id="userProfileList" style="display: flex; flex-direction: column; gap: 8px;"></div>
@@ -1063,21 +1170,22 @@
         <!-- 视窗 4: AI 记忆档案与历史共识库 -->
         <section class="view-content-pane" id="pane-memory">
             <div class="header-bar">
+                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
-                    <h3>🧠 AI 长期记忆档案与历史共识库 (不可推翻)</h3>
-                    <p>全家已达成共识的事项沉淀为家庭规则，实时云端记录</p>
+                    <h3>🧠 AI 记忆档案与历史共识库</h3>
+                    <p>全家已达成共识的事项，实时云端记录</p>
                 </div>
             </div>
             <div class="single-view-body">
                 <div class="inline-add-box">
-                    <b style="font-size: 13px;">➕ 录入一条已达成的新共识 / 家庭公约</b>
-                    <input type="text" id="consensusTitle" placeholder="共识标题（例如：【关于沟通时间的约定】）">
-                    <textarea id="consensusContent" rows="2" placeholder="具体约定条约内容..."></textarea>
-                    <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 14px; font-size: 12px;" onclick="addConsensusTimeline()">归档并同步全家设备</button>
+                    <b style="font-size: 12.5px;">➕ 录入一条已达成的新共识 / 家庭公约</b>
+                    <input type="text" id="consensusTitle" placeholder="共识标题（如：【关于沟通时间的约定】）">
+                    <textarea id="consensusContent" rows="2" placeholder="约定条约内容..."></textarea>
+                    <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 12px;" onclick="addConsensusTimeline()">归档共识</button>
                 </div>
 
                 <div class="data-card">
-                    <h4 style="font-size: 13.5px; margin-bottom: 12px;">📜 家庭共识达成时间线</h4>
+                    <h4 style="font-size: 13px; margin-bottom: 10px;">📜 家庭共识达成时间线</h4>
                     <div class="timeline-container" id="consensusTimelineList"></div>
                 </div>
             </div>
@@ -1086,31 +1194,32 @@
         <!-- 视窗 5: 发起家庭小问卷 -->
         <section class="view-content-pane" id="pane-survey">
             <div class="header-bar">
+                <button class="btn-mobile-menu" onclick="toggleMobileDrawer(true)">☰</button>
                 <div class="header-title-box">
-                    <h3>📝 发起家庭小问卷 (实时同步到全家手机)</h3>
-                    <p>支持自建多个问题与选项，家庭成员在线作答并实时同步查看</p>
+                    <h3>📝 发起家庭小问卷 (实时同步)</h3>
+                    <p>多题创建，在线作答，全家同步</p>
                 </div>
             </div>
             <div class="single-view-body">
                 <div class="inline-add-box">
-                    <b style="font-size: 13px;">➕ 创建一份新的家庭问卷调查</b>
-                    <input type="text" id="surveyTopicInput" placeholder="问卷标题：例如【关于今年过年安排的看法调查】">
+                    <b style="font-size: 12.5px;">➕ 创建一份新的家庭问卷调查</b>
+                    <input type="text" id="surveyTopicInput" placeholder="问卷标题：例如【关于过年安排的看法调查】">
                     
-                    <div id="surveyQuestionsBuilder" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
-                        <div class="survey-q-row" style="display: flex; gap: 8px;">
-                            <input type="text" class="survey-q-input" placeholder="问题 1：写下你想向大家提问的具体事情...">
+                    <div id="surveyQuestionsBuilder" style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
+                        <div class="survey-q-row" style="display: flex; gap: 6px;">
+                            <input type="text" class="survey-q-input" placeholder="问题 1：写下你想向大家提问的事情...">
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 4px;">
-                        <button type="button" onclick="addQuestionField()" style="background: none; border: 1px dashed var(--border-light); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; color: var(--text-secondary);">➕ 再加一个问题</button>
-                        <button class="btn-dispatch" style="padding: 7px 18px; margin-left: auto;" onclick="sendSurveyForm()">一键发布给全家填写</button>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap;">
+                        <button type="button" onclick="addQuestionField()" style="background: none; border: 1px dashed var(--border-light); padding: 5px 10px; border-radius: 6px; font-size: 11.5px; cursor: pointer;">➕ 再加一题</button>
+                        <button class="btn-dispatch" style="padding: 6px 14px; margin-left: auto;" onclick="sendSurveyForm()">发布问卷</button>
                     </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-                    <h4 style="font-size: 13.5px; color: var(--text-primary);">📋 全家进行中的问卷与作答汇总</h4>
-                    <div id="surveyCardsList" style="display: flex; flex-direction: column; gap: 12px; width: 100%;"></div>
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                    <h4 style="font-size: 13px; color: var(--text-primary);">📋 进行中的问卷与作答</h4>
+                    <div id="surveyCardsList" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
                 </div>
             </div>
         </section>
@@ -1120,37 +1229,37 @@
     <!-- 弹窗 1: 新建讨论房间 -->
     <div class="modal-shade" id="roomModalDialog">
         <div class="modal-window">
-            <h3 style="font-size: 15px; color: var(--text-primary);">新建专属讨论窗口</h3>
-            <p style="font-size: 12px; color: var(--text-subtle);">为具体事件建群，并指定 AI 在该窗口扮演的专属角色：</p>
+            <h3 style="font-size: 14.5px; color: var(--text-primary);">新建专属讨论窗口</h3>
+            <p style="font-size: 11.5px; color: var(--text-subtle);">为具体事件建群，并指定 AI 角色：</p>
             
-            <label style="font-size: 12px; font-weight: 600;">讨论窗口名称：</label>
-            <input type="text" id="customRoomInput" placeholder="如：家庭特定话题讨论" style="padding: 9px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 13px; outline: none; background: #faf9f6;">
+            <label style="font-size: 11.5px; font-weight: 600;">讨论窗口名称：</label>
+            <input type="text" id="customRoomInput" placeholder="如：家庭特定话题讨论" style="padding: 8px 10px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: #faf9f6;">
             
-            <label style="font-size: 12px; font-weight: 600;">AI 在此窗口的角色设定 (Role Prompt)：</label>
-            <textarea id="customRoleInput" rows="3" placeholder="写下希望 AI 怎么说、扮演什么角色..." style="padding: 9px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 13px; outline: none; background: #faf9f6; resize: none;"></textarea>
+            <label style="font-size: 11.5px; font-weight: 600;">AI 在此窗口的角色设定 (Role Prompt)：</label>
+            <textarea id="customRoleInput" rows="3" placeholder="写下希望 AI 怎么说、扮演什么角色..." style="padding: 8px 10px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: #faf9f6; resize: none;"></textarea>
             
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
                 <button onclick="closeRoomModal()" style="padding: 6px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); background: #fff; cursor: pointer; font-size: 12px;">取消</button>
-                <button onclick="confirmCreateRoom()" style="padding: 6px 14px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">创建并同步全家</button>
+                <button onclick="confirmCreateRoom()" style="padding: 6px 14px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">创建窗口</button>
             </div>
         </div>
     </div>
 
-    <!-- 弹窗 2: 编辑当前窗口的 AI 角色设定 -->
+    <!-- 弹窗 2: 编辑当前窗口 AI 角色 -->
     <div class="modal-shade" id="editRoleModal">
         <div class="modal-window">
-            <h3 style="font-size: 15px; color: var(--text-primary);">🎭 自定义当前窗口 AI 角色</h3>
-            <p style="font-size: 12px; color: var(--text-subtle);">告诉 AI 在这个窗口里应该扮演什么身份、遵守什么说话风格：</p>
+            <h3 style="font-size: 14.5px; color: var(--text-primary);">🎭 自定义当前窗口 AI 角色</h3>
+            <p style="font-size: 11.5px; color: var(--text-subtle);">指定 AI 在该窗口的说话风格与指令：</p>
             
-            <label style="font-size: 12px; font-weight: 600;">角色简短标签：</label>
-            <input type="text" id="roleTagInput" placeholder="如：客观事实拆解员 / 耐心翻译官" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 13px; outline: none;">
+            <label style="font-size: 11.5px; font-weight: 600;">角色简短标签：</label>
+            <input type="text" id="roleTagInput" placeholder="如：客观事实拆解员 / 耐心翻译官" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none;">
             
-            <label style="font-size: 12px; font-weight: 600;">具体指令与说话准则 (Prompt)：</label>
-            <textarea id="rolePromptInput" rows="4" placeholder="详细写下希望 AI 怎么说、重点拆解什么..." style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 13px; outline: none; resize: none;"></textarea>
+            <label style="font-size: 11.5px; font-weight: 600;">具体指令准则 (Prompt)：</label>
+            <textarea id="rolePromptInput" rows="4" placeholder="详细写下希望 AI 怎么说、重点拆解什么..." style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none; resize: none;"></textarea>
 
-            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
                 <button onclick="closeEditRoleModal()" style="padding: 6px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); background: #fff; cursor: pointer; font-size: 12px;">取消</button>
-                <button onclick="saveRoomRoleConfig()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">应用并同步全家</button>
+                <button onclick="saveRoomRoleConfig()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">应用设定</button>
             </div>
         </div>
     </div>
@@ -1158,26 +1267,26 @@
     <!-- 弹窗 3: 真实 AI API 配置 -->
     <div class="modal-shade" id="aiConfigModal">
         <div class="modal-window">
-            <h3 style="font-size: 15px; color: var(--text-primary);">⚙️ 配置真实 AI API 接口</h3>
-            <p style="font-size: 12px; color: var(--text-subtle);">支持任何兼容 OpenAI 格式的模型（如 DeepSeek、Kimi、通义千问、OpenAI）。Key 仅保存在你的浏览器本地。</p>
+            <h3 style="font-size: 14.5px; color: var(--text-primary);">⚙️ 配置真实 AI API 接口</h3>
+            <p style="font-size: 11.5px; color: var(--text-subtle);">支持兼容 OpenAI 格式的模型（如 DeepSeek、Kimi、通义千问等）。Key 仅保存在本地。</p>
             
-            <label style="font-size: 12px; font-weight: 600;">API Base URL 接口地址：</label>
-            <input type="text" id="cfgBaseUrl" placeholder="例如：https://api.deepseek.com/v1" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 13px; outline: none;">
+            <label style="font-size: 11.5px; font-weight: 600;">API Base URL 接口地址：</label>
+            <input type="text" id="cfgBaseUrl" placeholder="例如：https://api.deepseek.com/v1" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none;">
             
-            <label style="font-size: 12px; font-weight: 600;">API Key 密钥：</label>
-            <input type="password" id="cfgApiKey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 13px; outline: none;">
+            <label style="font-size: 11.5px; font-weight: 600;">API Key 密钥：</label>
+            <input type="password" id="cfgApiKey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none;">
             
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="font-size: 12px; font-weight: 600;">Model 模型选择：</label>
-                <button type="button" id="btnFetchModels" onclick="fetchAvailableModels()" style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; border-radius: 6px; padding: 3px 8px; font-size: 11px; cursor: pointer;">🔄 在线拉取可用模型</button>
+                <label style="font-size: 11.5px; font-weight: 600;">Model 模型选择：</label>
+                <button type="button" id="btnFetchModels" onclick="fetchAvailableModels()" style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; border-radius: 6px; padding: 2px 6px; font-size: 11px; cursor: pointer;">🔄 在线拉取模型</button>
             </div>
             
-            <select id="cfgModelSelect" onchange="onModelSelectChange(this)" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 13px; outline: none; background: #faf9f6; display: none;">
+            <select id="cfgModelSelect" onchange="onModelSelectChange(this)" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: #faf9f6; display: none;">
                 <option value="">-- 请选择拉取到的模型 --</option>
             </select>
-            <input type="text" id="cfgModel" placeholder="例如：deepseek-chat 或 gpt-4o-mini" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 13px; outline: none;">
+            <input type="text" id="cfgModel" placeholder="例如：deepseek-chat 或 gpt-4o-mini" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none;">
 
-            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
                 <button onclick="closeAiConfigModal()" style="padding: 6px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); background: #fff; cursor: pointer; font-size: 12px;">取消</button>
                 <button onclick="saveAiConfig()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">保存配置</button>
             </div>
@@ -1226,6 +1335,31 @@
             'ai': { name: 'AI 助手', avClass: 'av-ai', bClass: '' }
         };
 
+        /* ================= 手机端专属抽屉导航与状态折叠 ================= */
+        function toggleMobileDrawer(open) {
+            const drawer = document.getElementById('mainNavDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            if (open) {
+                drawer.classList.add('drawer-open');
+                overlay.classList.add('show');
+            } else {
+                drawer.classList.remove('drawer-open');
+                overlay.classList.remove('show');
+            }
+        }
+
+        function toggleMobileStatusView() {
+            const col = document.getElementById('rightStatusCol');
+            const icon = document.getElementById('mobileStatusToggleIcon');
+            if (col.classList.contains('mobile-expanded')) {
+                col.classList.remove('mobile-expanded');
+                icon.innerText = '▼';
+            } else {
+                col.classList.add('mobile-expanded');
+                icon.innerText = '▲';
+            }
+        }
+
         /* ================= 云端实时通信 ================= */
         function initCloudSync() {
             document.getElementById('displayRoomCode').innerText = roomCode;
@@ -1249,15 +1383,15 @@
                 mqttClient = mqtt.connect(brokerUrl, { clientId, clean: true, reconnectPeriod: 3000 });
                 mqttClient.on('connect', () => {
                     dot.className = 'status-dot online';
-                    txt.innerText = '云端实时互联中';
+                    txt.innerText = '云端互联中';
                     mqttClient.subscribe(topic, { qos: 1 });
                     broadcastSyncAction({ type: 'PING_REQUEST' });
                 });
                 mqttClient.on('message', (t, payload) => {
                     try { handleCloudBroadcast(JSON.parse(payload.toString())); } catch (e) {}
                 });
-                mqttClient.on('reconnect', () => { dot.className = 'status-dot'; txt.innerText = '正在重连云端...'; });
-                mqttClient.on('offline', () => { dot.className = 'status-dot'; txt.innerText = '已离线 (本地模式)'; });
+                mqttClient.on('reconnect', () => { dot.className = 'status-dot'; txt.innerText = '重连云端...'; });
+                mqttClient.on('offline', () => { dot.className = 'status-dot'; txt.innerText = '已离线'; });
             } catch (err) {
                 dot.className = 'status-dot';
                 txt.innerText = '离线运行中';
@@ -1396,7 +1530,6 @@
                 stream.appendChild(row);
             });
 
-            // 正在思考回复动画占位
             if (isAiThinking) {
                 const thinkingRow = document.createElement('div');
                 thinkingRow.className = 'msg-container';
@@ -1422,7 +1555,7 @@
                 tbody.innerHTML = '';
                 const list = globalState.problemTables[p] || [];
                 if (list.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-subtle); padding: 20px;">暂无记录，可点击上方添加</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-subtle); padding: 16px;">暂无记录，可点击上方添加</td></tr>';
                     return;
                 }
                 list.forEach(row => {
@@ -1444,8 +1577,8 @@
                 const isHidden = item.perm === 'hidden';
                 const div = document.createElement('div');
                 div.className = 'profile-entry';
-                div.style.cssText = `font-size: 13px; line-height: 1.6; padding: 10px 14px; border-radius: 8px; border: 1px solid ${isHidden ? '#fee2e2' : 'var(--border-light)'}; background: ${isHidden ? '#fff5f5' : '#faf9f6'};`;
-                div.innerHTML = `<span class="perm-tag ${isHidden ? 'perm-hidden' : 'perm-open'}">${isHidden ? '仅 AI 可见 (保密底牌)' : '公开'}</span><b>${escapeHtml(item.title)}：</b>${escapeHtml(item.desc || '')}`;
+                div.style.cssText = `font-size: 12.5px; line-height: 1.55; padding: 8px 12px; border-radius: 8px; border: 1px solid ${isHidden ? '#fee2e2' : 'var(--border-light)'}; background: ${isHidden ? '#fff5f5' : '#faf9f6'};`;
+                div.innerHTML = `<span class="perm-tag ${isHidden ? 'perm-hidden' : 'perm-open'}">${isHidden ? '仅 AI 可见' : '公开'}</span><b>${escapeHtml(item.title)}：</b>${escapeHtml(item.desc || '')}`;
                 list.appendChild(div);
             });
         }
@@ -1480,10 +1613,10 @@
                 (s.questions || []).forEach((q, idx) => {
                     questionsHtml += `
                         <div class="survey-question-block">
-                            <b style="font-size: 13px; color: var(--text-primary);">第 ${idx + 1} 题：${escapeHtml(q)}</b>
-                            <div style="display: flex; gap: 8px; margin-top: 4px;">
-                                <input type="text" id="ans_${s.id}_${idx}" placeholder="输入你 (${roleDefinitions[currentActiveRole].name}) 的回答..." style="flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-light); font-size: 12px; outline: none; background: #ffffff;">
-                                <button type="button" onclick="submitSurveyAnswer('${s.id}', ${idx})" style="background: #1c1917; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">提交回答</button>
+                            <b style="font-size: 12.5px; color: var(--text-primary);">第 ${idx + 1} 题：${escapeHtml(q)}</b>
+                            <div style="display: flex; gap: 6px; margin-top: 2px;">
+                                <input type="text" id="ans_${s.id}_${idx}" placeholder="输入你 (${roleDefinitions[currentActiveRole].name}) 的回答..." style="flex: 1; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); font-size: 12px; outline: none; background: #ffffff;">
+                                <button type="button" onclick="submitSurveyAnswer('${s.id}', ${idx})" style="background: #1c1917; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11.5px; cursor: pointer; white-space: nowrap;">提交</button>
                             </div>
                         </div>
                     `;
@@ -1491,18 +1624,18 @@
 
                 let answersHtml = '';
                 if (s.answers && s.answers.length > 0) {
-                    answersHtml = '<div class="survey-answers-list"><b style="font-size: 12px; color: var(--text-subtle);">全家各方作答记录：</b>';
+                    answersHtml = '<div class="survey-answers-list"><b style="font-size: 11.5px; color: var(--text-subtle);">各方作答记录：</b>';
                     s.answers.forEach(a => {
                         const rName = (roleDefinitions[a.role] || {}).name || '家庭成员';
-                        answersHtml += `<div class="answer-bubble"><b>${escapeHtml(rName)} (关于第 ${a.qIndex + 1} 题)：</b>${escapeHtml(a.text)} <span style="font-size: 10.5px; color: var(--text-subtle); float: right;">${escapeHtml(a.time)}</span></div>`;
+                        answersHtml += `<div class="answer-bubble"><b>${escapeHtml(rName)} (第 ${a.qIndex + 1} 题)：</b>${escapeHtml(a.text)} <span style="font-size: 10px; color: var(--text-subtle); float: right;">${escapeHtml(a.time)}</span></div>`;
                     });
                     answersHtml += '</div>';
                 }
 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 14px; font-weight: 700; color: var(--text-primary);">📌 ${escapeHtml(s.topic)}</span>
-                        <span style="font-size: 11px; color: var(--text-subtle);">${escapeHtml(s.date || '')}</span>
+                        <span style="font-size: 13.5px; font-weight: 700; color: var(--text-primary);">📌 ${escapeHtml(s.topic)}</span>
+                        <span style="font-size: 10.5px; color: var(--text-subtle);">${escapeHtml(s.date || '')}</span>
                     </div>
                     ${questionsHtml}
                     ${answersHtml}
@@ -1525,16 +1658,18 @@
             document.querySelectorAll('.nav-link').forEach(i => i.classList.remove('active'));
             document.getElementById(paneId).classList.add('active-pane');
             navEl.classList.add('active');
+            toggleMobileDrawer(false); // 手机端点击后自动收起抽屉
         }
 
         function showChatPane(roomId, title, desc, navEl) {
             currentRoomId = roomId;
             switchViewPane('pane-chat', navEl);
-            document.getElementById('paneChatTitle').innerHTML = `${title} <span class="public-inspect-banner" id="publicInspectBadge" style="display: ${roomId.includes('ai') && !roomId.includes('me') ? 'inline-flex' : 'none'};">全员公开查阅中</span>`;
+            document.getElementById('paneChatTitle').innerHTML = `${title} <span class="public-inspect-banner" id="publicInspectBadge" style="display: ${roomId.includes('ai') && !roomId.includes('me') ? 'inline-flex' : 'none'};">公开</span>`;
             document.getElementById('paneChatDesc').innerText = desc;
             const roleCfg = globalState.roomRoles[roomId] || { tag: '客观事实拆解员' };
             document.getElementById('curRoomRoleTag').innerText = roleCfg.tag;
             renderChatStream();
+            toggleMobileDrawer(false);
         }
 
         function switchTable(tableId, tabEl) {
@@ -1565,7 +1700,6 @@
 
             input.value = '';
 
-            // 仅在用户显式要求 AI 介入时才触发 AI 分析
             if (withAi) {
                 await triggerAiAnalyzeCurrent();
             }
@@ -1760,15 +1894,15 @@ ${recentHistory}
             }
         }
 
-        /* ================= 问卷动态添加题目与在线提交 ================= */
+        /* ================= 问卷多题与在线作答 ================= */
         function addQuestionField() {
             const container = document.getElementById('surveyQuestionsBuilder');
             const qCount = container.children.length + 1;
             const div = document.createElement('div');
             div.className = 'survey-q-row';
-            div.style.cssText = "display: flex; gap: 8px;";
+            div.style.cssText = "display: flex; gap: 6px;";
             div.innerHTML = `
-                <input type="text" class="survey-q-input" placeholder="问题 ${qCount}：写下你想向大家提问的具体事情...">
+                <input type="text" class="survey-q-input" placeholder="问题 ${qCount}：写下你想向大家提问的事情...">
                 <button type="button" onclick="this.parentElement.remove()" style="background: none; border: 1px solid var(--border-light); padding: 0 8px; border-radius: 6px; cursor: pointer; color: var(--text-subtle);">✕</button>
             `;
             container.appendChild(div);
@@ -1808,8 +1942,8 @@ ${recentHistory}
 
             document.getElementById('surveyTopicInput').value = '';
             document.getElementById('surveyQuestionsBuilder').innerHTML = `
-                <div class="survey-q-row" style="display: flex; gap: 8px;">
-                    <input type="text" class="survey-q-input" placeholder="问题 1：写下你想向大家提问的具体事情...">
+                <div class="survey-q-row" style="display: flex; gap: 6px;">
+                    <input type="text" class="survey-q-input" placeholder="问题 1：写下你想向大家提问的事情...">
                 </div>
             `;
             alert('家庭小问卷已正式发布并同步全家！');
@@ -1841,7 +1975,7 @@ ${recentHistory}
             }
         }
 
-        /* ================= 真实 API 在线拉取可用模型列表 ================= */
+        /* ================= 真实 API 模型在线拉取 ================= */
         async function fetchAvailableModels() {
             const apiKey = document.getElementById('cfgApiKey').value.trim();
             let baseUrl = document.getElementById('cfgBaseUrl').value.trim() || 'https://api.deepseek.com/v1';
@@ -1853,7 +1987,7 @@ ${recentHistory}
 
             const btn = document.getElementById('btnFetchModels');
             btn.disabled = true;
-            btn.innerText = '正在拉取...';
+            btn.innerText = '拉取中...';
 
             let modelsUrl = baseUrl;
             if (modelsUrl.endsWith('/chat/completions')) {
@@ -1868,9 +2002,7 @@ ${recentHistory}
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`获取失败 (${response.status}): ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`获取失败 (${response.status}): ${response.statusText}`);
 
                 const data = await response.json();
                 const modelSelect = document.getElementById('cfgModelSelect');
@@ -1886,15 +2018,15 @@ ${recentHistory}
                         modelSelect.appendChild(opt);
                     });
                     modelSelect.style.display = 'block';
-                    alert(`成功拉取到 ${modelsList.length} 个可用模型！您可以在下拉框中直接选择。`);
+                    alert(`成功拉取到 ${modelsList.length} 个可用模型！`);
                 } else {
-                    alert('拉取成功但未解析到标准模型列表，请手动输入模型名称。');
+                    alert('拉取成功但未解析到标准列表，请手动输入模型名称。');
                 }
             } catch (err) {
-                alert('拉取模型失败：' + err.message + '\n若拉取失败可直接在下方输入框手动填写模型名称（如 deepseek-chat 或 gpt-4o-mini）。');
+                alert('拉取模型失败：' + err.message + '\n可直接在下方手动填写模型名称（如 deepseek-chat）。');
             } finally {
                 btn.disabled = false;
-                btn.innerText = '🔄 在线拉取可用模型';
+                btn.innerText = '🔄 在线拉取模型';
             }
         }
 
@@ -1922,7 +2054,7 @@ ${recentHistory}
             document.getElementById(logicId).value = '';
             document.getElementById(refuseId).value = '';
             document.getElementById(adviceId).value = '';
-            alert('已添加并实时同步给全家人！');
+            alert('已添加到表格并实时同步全家！');
         }
 
         function addNewProfileItem() {
@@ -1954,7 +2086,7 @@ ${recentHistory}
 
             document.getElementById('consensusTitle').value = '';
             document.getElementById('consensusContent').value = '';
-            alert('新共识已归档并同步全家设备！');
+            alert('新共识已归档并同步全家！');
         }
 
         function openRoomModal() { document.getElementById('roomModalDialog').style.display = 'flex'; document.getElementById('customRoomInput').focus(); }
@@ -1964,7 +2096,7 @@ ${recentHistory}
             const rolePrompt = document.getElementById('customRoleInput').value.trim() || '客观事实拆解员，用大白话讲清楚事实。';
             if (!val) return;
             const newRoomId = 'room-custom-' + Date.now();
-            globalState.roomRoles[newRoomId] = { tag: val + ' 专属顾问', prompt: rolePrompt };
+            globalState.roomRoles[newRoomId] = { tag: val + ' 顾问', prompt: rolePrompt };
             globalState.chatRooms[newRoomId] = [];
             const li = document.createElement('li');
             li.className = 'nav-link';
@@ -2000,53 +2132,4 @@ ${recentHistory}
             document.getElementById('cfgBaseUrl').value = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
             document.getElementById('cfgApiKey').value = localStorage.getItem('hub_api_key') || '';
             document.getElementById('cfgModel').value = localStorage.getItem('hub_api_model') || 'deepseek-chat';
-            document.getElementById('aiConfigModal').style.display = 'flex';
-        }
-        function closeAiConfigModal() { document.getElementById('aiConfigModal').style.display = 'none'; }
-        function saveAiConfig() {
-            localStorage.setItem('hub_api_url', document.getElementById('cfgBaseUrl').value.trim());
-            localStorage.setItem('hub_api_key', document.getElementById('cfgApiKey').value.trim());
-            localStorage.setItem('hub_api_model', document.getElementById('cfgModel').value.trim());
-            closeAiConfigModal();
-            alert('AI 接口配置已保存在本地浏览器！');
-        }
-
-        function getRoomCodeFromUrl() {
-            const match = window.location.search.match(/room=([a-zA-Z0-9_-]+)/) || window.location.hash.match(/room=([a-zA-Z0-9_-]+)/);
-            return match ? match[1] : null;
-        }
-
-        function copyInviteLink() {
-            const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                alert(`已复制家庭共享邀请链接：\n${shareUrl}\n\n直接发给爸爸妈妈，他们打开即可实时加入同一个家庭空间！`);
-            }).catch(() => {
-                prompt("请复制以下链接发给爸妈：", shareUrl);
-            });
-        }
-
-        function changeRoomCode() {
-            const newCode = prompt("请输入您和家人的专属房间号（英文或数字）：", roomCode);
-            if (newCode && newCode.trim() && newCode.trim() !== roomCode) {
-                roomCode = newCode.trim();
-                window.location.search = `?room=${roomCode}`;
-            }
-        }
-
-        function escapeHtml(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-
-        document.getElementById('mainChatInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                submitMessage(false);
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const btn = document.querySelector(`.btn-${currentActiveRole}`);
-            if (btn) changeRole(currentActiveRole, btn);
-            initCloudSync();
-        });
-    </script>
-</body>
-</html>
+            document.getElementById('aiConfigModal').
