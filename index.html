@@ -8,37 +8,44 @@
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <style>
         :root {
-            --bg-base: #f7f6f2;
+            /* 自然高级鼠尾草绿 / 森林墨绿主题 */
+            --bg-base: #f2f6f3;
             --bg-surface: #ffffff;
-            --bg-elevated: #faf9f6;
-            --bg-muted: #f2f0ea;
+            --bg-elevated: #f8faf8;
+            --bg-muted: #e8efe9;
             
-            --text-primary: #1c1917;
-            --text-secondary: #44403c;
-            --text-tertiary: #78716c;
-            --text-subtle: #a8a29e;
+            --text-primary: #1b3022;
+            --text-secondary: #354f3e;
+            --text-tertiary: #587261;
+            --text-subtle: #879b8e;
             
-            --border-light: #e7e5e4;
-            --border-focus: #d6d3d1;
+            --border-light: #dbe5dc;
+            --border-focus: #b2c9b6;
             
-            --role-me-text: #1d4ed8;
-            --role-me-bg: #f0f6ff;
-            --role-me-border: #dbeafe;
+            --theme-green: #2d6a4f;
+            --theme-green-dark: #1b4332;
+            --theme-green-light: #e8f5e9;
+            --theme-green-border: #a3d9a5;
+
+            /* 身份识别色 (融入绿色基调) */
+            --role-me-text: #1b4332;
+            --role-me-bg: #e8f5e9;
+            --role-me-border: #c8e6c9;
             
-            --role-mom-text: #b91c1c;
-            --role-mom-bg: #fef2f2;
-            --role-mom-border: #fee2e2;
+            --role-mom-text: #9f1239;
+            --role-mom-bg: #fff1f2;
+            --role-mom-border: #fecdd3;
             
-            --role-dad-text: #0f766e;
-            --role-dad-bg: #f0fdfa;
-            --role-dad-border: #ccfbf1;
+            --role-dad-text: #065f46;
+            --role-dad-bg: #ecfdf5;
+            --role-dad-border: #a7f3d0;
             
             --radius-outer: 18px;
             --radius-inner: 12px;
             --radius-badge: 6px;
             
-            --shadow-subtle: 0 1px 3px rgba(28, 25, 23, 0.04), 0 8px 24px -4px rgba(28, 25, 23, 0.03);
-            --shadow-card: 0 2px 8px rgba(28, 25, 23, 0.03);
+            --shadow-subtle: 0 1px 3px rgba(27, 48, 34, 0.04), 0 8px 24px -4px rgba(27, 48, 34, 0.03);
+            --shadow-card: 0 2px 8px rgba(27, 48, 34, 0.03);
         }
 
         * {
@@ -85,13 +92,13 @@
         .brand-avatar {
             width: 36px;
             height: 36px;
-            background: #292524;
+            background: var(--theme-green-dark);
             color: #fafaf9;
             border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
             flex-shrink: 0;
         }
@@ -99,7 +106,7 @@
         .brand-meta p { font-size: 11px; color: var(--text-subtle); margin-top: 2px; }
 
         .sync-status-card {
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-inner);
             padding: 10px 12px;
@@ -121,15 +128,16 @@
             display: inline-block;
             background: #eab308;
         }
-        .status-dot.online { background: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.4); }
+        .status-dot.online { background: #2e7d32; box-shadow: 0 0 6px rgba(46, 125, 50, 0.4); }
         .btn-sync-action {
             background: none;
             border: none;
-            color: #2563eb;
+            color: var(--theme-green);
             font-size: 11px;
             cursor: pointer;
             text-decoration: underline;
             padding: 0;
+            font-weight: 600;
         }
 
         .section-label {
@@ -155,10 +163,10 @@
             user-select: none;
         }
         .nav-link:hover { background: var(--bg-muted); color: var(--text-primary); }
-        .nav-link.active { background: #292524; color: #ffffff; font-weight: 600; }
+        .nav-link.active { background: var(--theme-green-dark); color: #ffffff; font-weight: 600; }
         .nav-link-content { display: flex; align-items: center; gap: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .nav-pill-badge { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: #e7e5e4; color: #44403c; }
-        .nav-link.active .nav-pill-badge { background: #44403c; color: #fafaf9; }
+        .nav-pill-badge { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: #e0eae2; color: #1b4332; }
+        .nav-link.active .nav-pill-badge { background: #2d6a4f; color: #fafaf9; }
 
         .btn-create-room {
             display: flex;
@@ -177,7 +185,7 @@
             transition: all 0.2s;
             margin-bottom: 10px;
         }
-        .btn-create-room:hover { background: #f5f4ef; border-color: var(--border-focus); color: var(--text-primary); }
+        .btn-create-room:hover { background: #ebf3ec; border-color: var(--theme-green); color: var(--theme-green-dark); }
 
         .btn-config-ai {
             display: flex;
@@ -185,7 +193,7 @@
             gap: 6px;
             width: 100%;
             padding: 8px 10px;
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-inner);
             color: var(--text-secondary);
@@ -194,7 +202,7 @@
             margin-top: auto;
             margin-bottom: 8px;
         }
-        .btn-config-ai:hover { background: #ede9fe; border-color: #c4b5fd; color: #6d28d9; }
+        .btn-config-ai:hover { background: var(--theme-green-light); border-color: var(--theme-green-border); color: var(--theme-green-dark); }
 
         .nav-footer-rules {
             padding: 8px 6px 0;
@@ -268,7 +276,7 @@
         }
 
         .btn-header-tool {
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border: 1px solid var(--border-light);
             padding: 6px 10px;
             border-radius: 8px;
@@ -282,15 +290,17 @@
             white-space: nowrap;
         }
         .btn-header-tool:hover { background: #ffffff; border-color: var(--border-focus); color: var(--text-primary); }
-        .btn-header-tool.active { background: #1c1917; color: #ffffff; border-color: #1c1917; }
+        .btn-header-tool.active { background: var(--theme-green-dark); color: #ffffff; border-color: var(--theme-green-dark); }
+        .btn-header-tool.primary { background: var(--theme-green-light); color: var(--theme-green-dark); border-color: var(--theme-green-border); font-weight: 600; }
+        .btn-header-tool.primary:hover { background: #d7edd9; }
 
         .public-inspect-banner {
             font-size: 10px;
             padding: 2px 6px;
             border-radius: 6px;
-            background: #ecfdf5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
+            background: #e8f5e9;
+            color: #1b4332;
+            border: 1px solid #c8e6c9;
             display: flex;
             align-items: center;
             gap: 4px;
@@ -300,7 +310,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border: 1px solid var(--border-light);
             padding: 6px 8px;
             border-radius: 8px;
@@ -310,12 +320,12 @@
             transition: all 0.15s;
             white-space: nowrap;
         }
-        .ai-role-tag-box:hover { border-color: #292524; background: #ffffff; }
+        .ai-role-tag-box:hover { border-color: var(--theme-green); background: #ffffff; }
         .ai-role-tag-box span.role-text {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: #6d28d9;
+            color: var(--theme-green-dark);
             font-weight: 600;
             max-width: 90px;
         }
@@ -323,7 +333,7 @@
         /* 手机端当前争议折叠条 */
         .mobile-status-toggle-bar {
             display: none;
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border-bottom: 1px solid var(--border-light);
             padding: 9px 14px;
             font-size: 12px;
@@ -336,7 +346,7 @@
 
         /* 批量操作控制浮动条 */
         .batch-action-bar {
-            background: #292524;
+            background: var(--theme-green-dark);
             color: #fafaf9;
             padding: 8px 14px;
             display: none;
@@ -348,7 +358,7 @@
         }
         .batch-action-bar.show { display: flex; }
         .batch-btn {
-            background: #44403c;
+            background: #2d6a4f;
             color: #fff;
             border: none;
             padding: 4px 8px;
@@ -357,7 +367,7 @@
             cursor: pointer;
             margin-left: 4px;
         }
-        .batch-btn:hover { background: #57534e; }
+        .batch-btn:hover { background: #40916c; }
         .batch-btn.danger { background: #991b1b; }
 
         .conversation-scroll {
@@ -367,7 +377,7 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
-            background: #faf9f6;
+            background: var(--bg-elevated);
             min-width: 0;
         }
 
@@ -400,10 +410,10 @@
             flex-shrink: 0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .av-me { background: #dbeafe; color: #1e40af; }
+        .av-me { background: #c8e6c9; color: #1b4332; }
         .av-mom { background: #fee2e2; color: #991b1b; }
         .av-dad { background: #ccfbf1; color: #115e59; }
-        .av-ai { background: #292524; color: #fafaf9; }
+        .av-ai { background: var(--theme-green-dark); color: #fafaf9; }
 
         .msg-bubble-wrap {
             display: flex;
@@ -428,21 +438,21 @@
             word-break: break-word;
             white-space: pre-wrap;
         }
-        .b-me { border-left: 3px solid #3b82f6; }
+        .b-me { border-left: 3px solid var(--theme-green); }
         .b-mom { border-left: 3px solid #ef4444; }
         .b-dad { border-left: 3px solid #0d9488; }
 
         .bubble-ai-panel {
             background: #ffffff;
-            border: 1px solid #d6d3d1;
-            border-left: 3px solid #292524;
+            border: 1px solid var(--border-light);
+            border-left: 3px solid var(--theme-green-dark);
             border-radius: var(--radius-inner);
             padding: 14px 16px;
             width: 100%;
             box-shadow: var(--shadow-card);
         }
         .ai-bullet {
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border: 1px solid var(--border-light);
             border-radius: 8px;
             padding: 8px 10px;
@@ -454,13 +464,12 @@
             word-break: break-word;
         }
 
-        /* 消息操作栏 */
         .msg-hover-actions {
             display: flex;
             gap: 4px;
             margin-top: 4px;
             align-self: flex-start;
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border: 1px solid var(--border-light);
             border-radius: 6px;
             padding: 2px 6px;
@@ -474,17 +483,17 @@
             padding: 3px 5px;
             border-radius: 4px;
         }
-        .action-icon-btn:hover { background: #f5f4ef; color: var(--text-primary); }
+        .action-icon-btn:hover { background: #e0eae2; color: var(--text-primary); }
 
         .ai-thinking-box {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 12px;
-            color: #6d28d9;
+            color: var(--theme-green-dark);
             padding: 10px 14px;
-            background: #f5f3ff;
-            border: 1px dashed #ddd6fe;
+            background: var(--theme-green-light);
+            border: 1px dashed var(--theme-green-border);
             border-radius: var(--radius-inner);
             animation: pulse 1.5s infinite;
         }
@@ -521,17 +530,17 @@
             padding: 10px 12px;
             border-radius: var(--radius-inner);
             border: 1px solid var(--border-light);
-            background: #faf9f6;
+            background: var(--bg-elevated);
             font-size: 13.5px;
             outline: none;
             resize: none;
             color: var(--text-primary);
         }
-        .chat-input-textarea:focus { border-color: #292524; background: #ffffff; }
+        .chat-input-textarea:focus { border-color: var(--theme-green); background: #ffffff; }
         
         .btn-dispatch {
             padding: 0 14px;
-            background: #1c1917;
+            background: var(--theme-green-dark);
             color: #fafaf9;
             border: none;
             border-radius: var(--radius-inner);
@@ -542,7 +551,7 @@
         }
         .btn-dispatch-ai {
             padding: 0 14px;
-            background: #6d28d9;
+            background: var(--theme-green);
             color: #ffffff;
             border: none;
             border-radius: var(--radius-inner);
@@ -557,7 +566,7 @@
 
         .right-status-column {
             padding: 16px;
-            background: #faf9f6;
+            background: var(--bg-elevated);
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -587,7 +596,7 @@
             border-radius: var(--radius-badge);
             font-weight: 600;
         }
-        .chip-issue { background: #f5f5f4; color: #292524; }
+        .chip-issue { background: #e0eae2; color: var(--theme-green-dark); }
         .chip-flaw { background: #fee2e2; color: #991b1b; }
 
         /* 独立视图排版 */
@@ -598,14 +607,14 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
-            background: #faf9f6;
+            background: var(--bg-elevated);
             width: 100%;
             min-width: 0;
         }
 
         .inline-add-box {
             background: #ffffff;
-            border: 1px dashed #d6d3d1;
+            border: 1px dashed var(--border-light);
             border-radius: var(--radius-inner);
             padding: 14px;
             display: flex;
@@ -620,11 +629,11 @@
             border: 1px solid var(--border-light);
             font-size: 12.5px;
             outline: none;
-            background: #faf9f6;
+            background: var(--bg-elevated);
         }
         .inline-add-box input:focus, .inline-add-box textarea:focus {
             background: #fff;
-            border-color: #292524;
+            border-color: var(--theme-green);
         }
 
         .tab-switcher { display: flex; gap: 6px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; width: 100%; flex-shrink: 0; overflow-x: auto; white-space: nowrap; }
@@ -640,7 +649,7 @@
             transition: all 0.15s;
             white-space: nowrap;
         }
-        .tab-tag.active { background: #1c1917; color: #fafaf9; border-color: #1c1917; font-weight: 600; }
+        .tab-tag.active { background: var(--theme-green-dark); color: #fafaf9; border-color: var(--theme-green-dark); font-weight: 600; }
 
         .table-display-card {
             background: #ffffff;
@@ -652,9 +661,16 @@
             width: 100%;
         }
         .table-display-card.active-table { display: block; }
+        
         .ui-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .ui-table th { background: #fcfbf9; text-align: left; padding: 10px 12px; color: var(--text-subtle); border-bottom: 1px solid var(--border-light); font-weight: 600; font-size: 11px; white-space: nowrap; }
-        .ui-table td { padding: 10px 12px; border-bottom: 1px solid #f5f5f4; line-height: 1.5; vertical-align: top; color: var(--text-secondary); word-break: break-word; }
+        .ui-table th { background: #f0f5f1; text-align: left; padding: 10px 12px; color: var(--text-subtle); border-bottom: 1px solid var(--border-light); font-weight: 600; font-size: 11px; white-space: nowrap; }
+        .ui-table td { padding: 10px 12px; border-bottom: 1px solid #f2f6f3; line-height: 1.5; vertical-align: top; color: var(--text-secondary); word-break: break-word; }
+        
+        .table-row-actions {
+            display: flex;
+            gap: 4px;
+            white-space: nowrap;
+        }
 
         .data-card {
             background: #ffffff;
@@ -671,10 +687,11 @@
             font-weight: 700;
             margin-right: 4px;
         }
-        .src-user-style { background: #f5f5f4; color: #292524; border: 1px solid #e7e5e4; }
+        .src-user-style { background: #e8efe9; color: var(--theme-green-dark); }
+        .src-ai-style { background: var(--theme-green-light); color: var(--theme-green); border: 1px solid var(--theme-green-border); }
         .perm-tag { font-size: 10px; padding: 1px 5px; border-radius: var(--radius-badge); float: right; font-weight: 600; }
-        .perm-open { background: #f0fdf4; color: #166534; }
-        .perm-hidden { background: #fef2f2; color: #991b1b; }
+        .perm-open { background: #e8f5e9; color: #1b4332; }
+        .perm-hidden { background: #fee2e2; color: #991b1b; }
 
         .timeline-container { display: flex; flex-direction: column; gap: 12px; position: relative; margin-top: 6px; width: 100%; }
         .timeline-container::before { content: ''; position: absolute; left: 12px; top: 10px; bottom: 10px; width: 1px; background: var(--border-light); }
@@ -684,8 +701,8 @@
             height: 24px;
             border-radius: 50%;
             background: #ffffff;
-            border: 1px solid #292524;
-            color: #292524;
+            border: 1px solid var(--theme-green);
+            color: var(--theme-green-dark);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -721,7 +738,7 @@
             width: 100%;
         }
         .survey-question-block {
-            background: #faf9f6;
+            background: var(--bg-elevated);
             border: 1px solid var(--border-light);
             border-radius: 8px;
             padding: 10px 12px;
@@ -747,7 +764,7 @@
         .modal-shade {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(28, 25, 23, 0.4);
+            background: rgba(27, 48, 34, 0.4);
             backdrop-filter: blur(2px);
             display: none;
             align-items: center;
@@ -779,7 +796,7 @@
             width: 100%;
         }
 
-        /* 3. 手机端底部固定导航栏 (微信/App 经典触控体验) */
+        /* 3. 手机端底部固定导航栏 */
         .mobile-bottom-nav {
             display: none;
             position: fixed;
@@ -802,13 +819,10 @@
             color: var(--text-tertiary);
             cursor: pointer;
             padding: 4px 6px;
-            min-width: 50px;
+            min-width: 48px;
         }
         .mobile-tab-btn span.tab-icon { font-size: 16px; }
-        .mobile-tab-btn.active { color: #1c1917; font-weight: 700; }
-
-        @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .mobile-tab-btn.active { color: var(--theme-green-dark); font-weight: 700; }
 
         /* ================= 📱 移动端屏幕核心适配规则 (<= 768px) ================= */
         @media (max-width: 768px) {
@@ -822,7 +836,7 @@
                 border: none;
             }
             .nav-column {
-                display: none; /* 手机端隐藏左侧栏，改用底部栏 */
+                display: none;
             }
             .mobile-bottom-nav {
                 display: flex;
@@ -837,7 +851,7 @@
                 display: flex;
                 position: absolute;
                 top: 86px; left: 0; right: 0; bottom: 0;
-                background: #faf9f6;
+                background: var(--bg-elevated);
                 z-index: 50;
             }
             .mobile-status-toggle-bar {
@@ -863,9 +877,9 @@
     <!-- 1. 左侧导航 (电脑端显示) -->
     <aside class="nav-column">
         <div class="workspace-brand">
-            <div class="brand-avatar">C</div>
+            <div class="brand-avatar">🌿</div>
             <div class="brand-meta">
-                <h2>家庭共识共享空间</h2>
+                <h2>家庭共识空间</h2>
                 <p>云端实时互联 · 全家公开查阅</p>
             </div>
         </div>
@@ -1029,12 +1043,17 @@
             </div>
         </section>
 
-        <!-- 视窗 2: 每个人问题点独立表 -->
+        <!-- 视窗 2: 每个人问题点独立表 (AI 自动提炼 + 人工编辑双驱动) -->
         <section class="view-content-pane" id="pane-tables">
             <div class="header-bar">
                 <div class="header-title-box">
                     <h3>📊 每个人问题点独立分析表</h3>
-                    <p>各自独立分开呈现，全家云端同步</p>
+                    <p>AI 根据对话自动提炼归纳，各方均可随时就地修改</p>
+                </div>
+                <div class="header-actions-group">
+                    <button class="btn-header-tool primary" id="btnAiExtractTables" onclick="triggerAiExtractAllTables()">
+                        <span>🤖</span> AI自动提炼问题
+                    </button>
                 </div>
             </div>
             <div class="single-view-body">
@@ -1044,58 +1063,40 @@
                     <div class="tab-tag" onclick="switchTable('tab-me-view', this)">👤 我的问题表</div>
                 </div>
 
+                <!-- 妈妈的问题表 -->
                 <div class="table-display-card active-table" id="tab-mom-view">
-                    <div style="padding: 12px;">
-                        <div class="inline-add-box">
-                            <b style="font-size: 12.5px;">➕ 添加妈妈的新问题点 / 新案例</b>
-                            <input type="text" id="momIssue" placeholder="问题表现（如：具体哪句话让沟通变难）">
-                            <input type="text" id="momLogic" placeholder="背后的逻辑漏洞 / 认知错误">
-                            <input type="text" id="momRefuse" placeholder="不认错的典型话术">
-                            <input type="text" id="momAdvice" placeholder="AI 建议的正确做法">
-                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 12px;" onclick="addRowToTable('mom', 'momIssue', 'momLogic', 'momRefuse', 'momAdvice')">添加到妈妈表</button>
-                        </div>
+                    <div style="padding: 12px; background: #fff;">
+                        <button class="btn-dispatch" style="padding: 6px 12px; font-size: 11.5px;" onclick="openAddTableRowModal('mom')">➕ 人工添加妈妈问题点</button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="ui-table">
-                            <thead><tr><th>问题表现</th><th>逻辑漏洞</th><th>不认错话术</th><th>建议做法</th></tr></thead>
+                            <thead><tr><th style="width: 25%;">问题表现</th><th style="width: 30%;">逻辑漏洞 / 认知误区</th><th style="width: 20%;">典型话术</th><th style="width: 15%;">建议做法</th><th style="width: 10%;">操作</th></tr></thead>
                             <tbody id="momTableBody"></tbody>
                         </table>
                     </div>
                 </div>
 
+                <!-- 爸爸的问题表 -->
                 <div class="table-display-card" id="tab-dad-view">
-                    <div style="padding: 12px;">
-                        <div class="inline-add-box">
-                            <b style="font-size: 12.5px;">➕ 添加爸爸的新问题点 / 新案例</b>
-                            <input type="text" id="dadIssue" placeholder="问题表现（如：关键时刻只劝我退让）">
-                            <input type="text" id="dadLogic" placeholder="背后的逻辑漏洞 / 认知错误">
-                            <input type="text" id="dadRefuse" placeholder="不认错的典型话术">
-                            <input type="text" id="dadAdvice" placeholder="AI 建议的正确做法">
-                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 12px;" onclick="addRowToTable('dad', 'dadIssue', 'dadLogic', 'dadRefuse', 'dadAdvice')">添加到爸爸表</button>
-                        </div>
+                    <div style="padding: 12px; background: #fff;">
+                        <button class="btn-dispatch" style="padding: 6px 12px; font-size: 11.5px;" onclick="openAddTableRowModal('dad')">➕ 人工添加爸爸问题点</button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="ui-table">
-                            <thead><tr><th>问题表现</th><th>逻辑漏洞</th><th>不认错话术</th><th>建议做法</th></tr></thead>
+                            <thead><tr><th style="width: 25%;">问题表现</th><th style="width: 30%;">逻辑漏洞 / 认知误区</th><th style="width: 20%;">典型话术</th><th style="width: 15%;">建议做法</th><th style="width: 10%;">操作</th></tr></thead>
                             <tbody id="dadTableBody"></tbody>
                         </table>
                     </div>
                 </div>
 
+                <!-- 我的问题表 -->
                 <div class="table-display-card" id="tab-me-view">
-                    <div style="padding: 12px;">
-                        <div class="inline-add-box">
-                            <b style="font-size: 12.5px;">➕ 添加我的新问题点 / 反应模式</b>
-                            <input type="text" id="meIssue" placeholder="问题表现（如：容易产生抵触的场景）">
-                            <input type="text" id="meLogic" placeholder="背后的逻辑漏洞 / 认知错误">
-                            <input type="text" id="meRefuse" placeholder="引发误解的行为">
-                            <input type="text" id="meAdvice" placeholder="AI 建议的正确做法">
-                            <button class="btn-dispatch" style="align-self: flex-start; padding: 6px 12px;" onclick="addRowToTable('me', 'meIssue', 'meLogic', 'meRefuse', 'meAdvice')">添加到我的表</button>
-                        </div>
+                    <div style="padding: 12px; background: #fff;">
+                        <button class="btn-dispatch" style="padding: 6px 12px; font-size: 11.5px;" onclick="openAddTableRowModal('me')">➕ 人工添加我的问题点</button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="ui-table">
-                            <thead><tr><th>问题表现</th><th>逻辑漏洞</th><th>引发误解行为</th><th>建议做法</th></tr></thead>
+                            <thead><tr><th style="width: 25%;">问题表现</th><th style="width: 30%;">逻辑漏洞 / 认知误区</th><th style="width: 20%;">引发误解行为</th><th style="width: 15%;">建议做法</th><th style="width: 10%;">操作</th></tr></thead>
                             <tbody id="meTableBody"></tbody>
                         </table>
                     </div>
@@ -1103,18 +1104,23 @@
             </div>
         </section>
 
-        <!-- 视窗 3: 关于我 -->
+        <!-- 视窗 3: 关于我 (AI 自动学习补充画像 + 人工录入) -->
         <section class="view-content-pane" id="pane-profile">
             <div class="header-bar">
                 <div class="header-title-box">
-                    <h3>👤 关于我的资料库 (云端共享)</h3>
-                    <p>性格、作息、雷区与沟通边界</p>
+                    <h3>👤 关于我的资料库 (双驱动画像)</h3>
+                    <p>我亲自填写的底牌 + AI 依据对话深度学习自动补充的特质画像</p>
+                </div>
+                <div class="header-actions-group">
+                    <button class="btn-header-tool primary" id="btnAiExtractProfile" onclick="triggerAiExtractProfile()">
+                        <span>🤖</span> 让AI补充我的特质
+                    </button>
                 </div>
             </div>
             <div class="single-view-body">
                 <div class="inline-add-box">
-                    <b style="font-size: 12.5px;">➕ 补充一条关于我的资料 / 沟通底线</b>
-                    <input type="text" id="profileTitleInput" placeholder="资料标题（如：我的性格MBTI、作息、禁忌词等）">
+                    <b style="font-size: 12.5px;">➕ 亲自补充一条关于我的资料 / 沟通底线</b>
+                    <input type="text" id="profileTitleInput" placeholder="资料标题（如：性格MBTI、作息、禁忌词等）">
                     <textarea id="profileDescInput" rows="2" placeholder="详细说明..."></textarea>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <select id="profilePermSelect" style="width: auto;">
@@ -1127,7 +1133,7 @@
 
                 <div class="data-card">
                     <h4 style="font-size: 13px; margin-bottom: 8px;">
-                        <span class="source-pill src-user-style">✍️ 个人资料与底线清单</span>
+                        <span class="source-pill src-user-style">🌿 综合性格特质与沟通底线清单</span>
                     </h4>
                     <div id="userProfileList" style="display: flex; flex-direction: column; gap: 8px;"></div>
                 </div>
@@ -1139,7 +1145,7 @@
             <div class="header-bar">
                 <div class="header-title-box">
                     <h3>🧠 AI 记忆档案与历史共识库</h3>
-                    <p>全家已达成共识的事项，实时云端记录</p>
+                    <p>全家已达成共识的事项沉淀为家庭规则，实时云端记录</p>
                 </div>
             </div>
             <div class="single-view-body">
@@ -1168,7 +1174,7 @@
             <div class="single-view-body">
                 <div class="inline-add-box">
                     <b style="font-size: 12.5px;">➕ 创建一份新的家庭问卷调查</b>
-                    <input type="text" id="surveyTopicInput" placeholder="问卷标题：例如【关于过年安排的看法调查】">
+                    <input type="text" id="surveyTopicInput" placeholder="问卷标题：例如【关于近期安排的看法调查】">
                     
                     <div id="surveyQuestionsBuilder" style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
                         <div class="survey-q-row" style="display: flex; gap: 6px;">
@@ -1191,7 +1197,7 @@
 
     </main>
 
-    <!-- 3. 手机端专属底部固定导航栏 (触控灵敏) -->
+    <!-- 3. 手机端底部固定导航栏 -->
     <nav class="mobile-bottom-nav">
         <button class="mobile-tab-btn active" id="mTab_chat" onclick="mobileSelectTab('chat')">
             <span class="tab-icon">💬</span>
@@ -1230,14 +1236,14 @@
             <p style="font-size: 11.5px; color: var(--text-subtle);">为具体事件建群，并指定 AI 角色：</p>
             
             <label style="font-size: 11.5px; font-weight: 600;">讨论窗口名称：</label>
-            <input type="text" id="customRoomInput" placeholder="如：家庭特定话题讨论" style="padding: 8px 10px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: #faf9f6;">
+            <input type="text" id="customRoomInput" placeholder="如：家庭特定话题讨论" style="padding: 8px 10px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: var(--bg-elevated);">
             
             <label style="font-size: 11.5px; font-weight: 600;">AI 在此窗口的角色设定 (Role Prompt)：</label>
-            <textarea id="customRoleInput" rows="3" placeholder="写下希望 AI 怎么说、扮演什么角色..." style="padding: 8px 10px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: #faf9f6; resize: none;"></textarea>
+            <textarea id="customRoleInput" rows="3" placeholder="写下希望 AI 怎么说、扮演什么角色..." style="padding: 8px 10px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: var(--bg-elevated); resize: none;"></textarea>
             
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
                 <button onclick="closeRoomModal()" style="padding: 6px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); background: #fff; cursor: pointer; font-size: 12px;">取消</button>
-                <button onclick="confirmCreateRoom()" style="padding: 6px 14px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">创建窗口</button>
+                <button onclick="confirmCreateRoom()" style="padding: 6px 14px; border-radius: var(--radius-inner); border: none; background: var(--theme-green-dark); color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">创建窗口</button>
             </div>
         </div>
     </div>
@@ -1256,7 +1262,7 @@
 
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
                 <button onclick="closeEditRoleModal()" style="padding: 6px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); background: #fff; cursor: pointer; font-size: 12px;">取消</button>
-                <button onclick="saveRoomRoleConfig()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">应用设定</button>
+                <button onclick="saveRoomRoleConfig()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: var(--theme-green-dark); color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">应用设定</button>
             </div>
         </div>
     </div>
@@ -1275,17 +1281,43 @@
             
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <label style="font-size: 11.5px; font-weight: 600;">Model 模型选择：</label>
-                <button type="button" id="btnFetchModels" onclick="fetchAvailableModels()" style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; border-radius: 6px; padding: 2px 6px; font-size: 11px; cursor: pointer;">🔄 在线拉取模型</button>
+                <button type="button" id="btnFetchModels" onclick="fetchAvailableModels()" style="background: var(--theme-green-light); color: var(--theme-green-dark); border: 1px solid var(--theme-green-border); border-radius: 6px; padding: 2px 6px; font-size: 11px; cursor: pointer;">🔄 在线拉取模型</button>
             </div>
             
-            <select id="cfgModelSelect" onchange="onModelSelectChange(this)" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: #faf9f6; display: none;">
+            <select id="cfgModelSelect" onchange="onModelSelectChange(this)" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none; background: var(--bg-elevated); display: none;">
                 <option value="">-- 请选择拉取到的模型 --</option>
             </select>
             <input type="text" id="cfgModel" placeholder="例如：deepseek-chat 或 gpt-4o-mini" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none;">
 
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
                 <button onclick="closeAiConfigModal()" style="padding: 6px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); background: #fff; cursor: pointer; font-size: 12px;">取消</button>
-                <button onclick="saveAiConfig()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: #1c1917; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">保存配置</button>
+                <button onclick="saveAiConfig()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: var(--theme-green-dark); color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 4: 表格单行 新增/编辑 弹窗 -->
+    <div class="modal-shade" id="tableEditRowModal">
+        <div class="modal-window">
+            <h3 style="font-size: 14.5px; color: var(--text-primary);" id="tableModalTitle">编辑问题条目</h3>
+            <input type="hidden" id="editRowPerson">
+            <input type="hidden" id="editRowIndex">
+            
+            <label style="font-size: 11.5px; font-weight: 600;">问题表现：</label>
+            <input type="text" id="editRowIssue" placeholder="具体表现（如：某句话或行为让沟通变难）" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none;">
+            
+            <label style="font-size: 11.5px; font-weight: 600;">背后的逻辑漏洞 / 认知误区：</label>
+            <textarea id="editRowLogic" rows="2" placeholder="分析背后的逻辑漏洞..." style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none; resize: none;"></textarea>
+
+            <label style="font-size: 11.5px; font-weight: 600;">典型不认错话术 / 引发误解行为：</label>
+            <input type="text" id="editRowRefuse" placeholder="例如：“我还不是为了你好”" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none;">
+
+            <label style="font-size: 11.5px; font-weight: 600;">AI / 双方建议的正确做法：</label>
+            <textarea id="editRowAdvice" rows="2" placeholder="建议的做法..." style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 12.5px; outline: none; resize: none;"></textarea>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
+                <button onclick="closeTableEditRowModal()" style="padding: 6px 12px; border-radius: var(--radius-inner); border: 1px solid var(--border-light); background: #fff; cursor: pointer; font-size: 12px;">取消</button>
+                <button onclick="saveTableRowFromModal()" style="padding: 6px 16px; border-radius: var(--radius-inner); border: none; background: var(--theme-green-dark); color: #fff; cursor: pointer; font-size: 12px; font-weight: 600;">保存条目</button>
             </div>
         </div>
     </div>
@@ -1298,7 +1330,7 @@
         let isSelectionMode = false;
         let isAiThinking = false;
 
-        /* 内置结构化清晰模版框架 (不再留空白) */
+        /* 全局状态（支持双驱动自动学习） */
         let globalState = {
             chatRooms: {
                 'room-three': [
@@ -1336,9 +1368,9 @@
                 ]
             },
             profileList: [
-                { title: '性格模式 (MBTI: INFP)', desc: '偏内向，遇到压力时需要通过独立安静的空间来恢复精力。', perm: 'open' },
-                { title: '沟通雷区', desc: '反感“都是为了你好”、“你看别人家”等全盘否定式话术。', perm: 'open' },
-                { title: '真实底牌 (保密)', desc: '个人有明确的生活备用金与长期发展规划，希望按自己的节奏推进。', perm: 'hidden' }
+                { title: '性格模式 (MBTI: INFP)', desc: '偏内向，遇到压力时需要通过独立安静的空间来恢复精力。', perm: 'open', source: 'user' },
+                { title: '沟通雷区', desc: '反感“都是为了你好”、“你看别人家”等全盘否定式话术。', perm: 'open', source: 'user' },
+                { title: '真实底牌 (保密)', desc: '个人有明确的生活备用金与长期发展规划，希望按自己的节奏推进。', perm: 'hidden', source: 'user' }
             ],
             consensusList: [
                 { title: '【关于沟通节奏的约定】', desc: '进门疲劳时允许先休息充能，双方约定在合适的时间再开展深入讨论。', date: '2026年9月' }
@@ -1469,9 +1501,12 @@
             } else if (data.type === 'UPDATE_ROLE_CONFIG') {
                 globalState.roomRoles[data.roomId] = data.roleCfg;
                 if (data.roomId === currentRoomId) document.getElementById('curRoomRoleTag').innerText = data.roleCfg.tag;
-            } else if (data.type === 'ADD_PROBLEM_ROW') {
-                globalState.problemTables[data.person].push(data.row);
+            } else if (data.type === 'SYNC_PROBLEM_TABLES') {
+                globalState.problemTables = data.problemTables;
                 renderTables();
+            } else if (data.type === 'SYNC_PROFILES') {
+                globalState.profileList = data.profileList;
+                renderProfiles();
             } else if (data.type === 'ADD_PROFILE_ITEM') {
                 globalState.profileList.push(data.item);
                 renderProfiles();
@@ -1589,12 +1624,23 @@
                 tbody.innerHTML = '';
                 const list = globalState.problemTables[p] || [];
                 if (list.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-subtle); padding: 16px;">暂无记录，可点击上方添加</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-subtle); padding: 16px;">暂无记录，可点击上方按钮让 AI 自动提炼或人工添加</td></tr>';
                     return;
                 }
-                list.forEach(row => {
+                list.forEach((row, idx) => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td><b>${escapeHtml(row.issue)}</b></td><td>${escapeHtml(row.logic || '待补充')}</td><td>${escapeHtml(row.refuse || '无')}</td><td>${escapeHtml(row.advice || '就事论事')}</td>`;
+                    tr.innerHTML = `
+                        <td><b>${escapeHtml(row.issue)}</b></td>
+                        <td>${escapeHtml(row.logic || '待补充')}</td>
+                        <td>${escapeHtml(row.refuse || '无')}</td>
+                        <td>${escapeHtml(row.advice || '就事论事')}</td>
+                        <td>
+                            <div class="table-row-actions">
+                                <button class="action-icon-btn" onclick="openEditTableRowModal('${p}', ${idx})">✏️ 修改</button>
+                                <button class="action-icon-btn" onclick="deleteTableRow('${p}', ${idx})">🗑️ 删除</button>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
             });
@@ -1604,15 +1650,21 @@
             const list = document.getElementById('userProfileList');
             list.innerHTML = '';
             if (globalState.profileList.length === 0) {
-                list.innerHTML = '<div class="empty-hint">暂未录入个人资料。可点击上方添加 MBTI、性格习惯、作息或沟通禁忌。</div>';
+                list.innerHTML = '<div class="empty-hint">暂未录入个人资料。可点击上方让 AI 学习补充或亲自添加。</div>';
                 return;
             }
-            globalState.profileList.forEach(item => {
+            globalState.profileList.forEach((item, idx) => {
                 const isHidden = item.perm === 'hidden';
+                const isAi = item.source === 'ai';
                 const div = document.createElement('div');
                 div.className = 'profile-entry';
-                div.style.cssText = `font-size: 12.5px; line-height: 1.55; padding: 8px 12px; border-radius: 8px; border: 1px solid ${isHidden ? '#fee2e2' : 'var(--border-light)'}; background: ${isHidden ? '#fff5f5' : '#faf9f6'};`;
-                div.innerHTML = `<span class="perm-tag ${isHidden ? 'perm-hidden' : 'perm-open'}">${isHidden ? '仅 AI 可见' : '公开'}</span><b>${escapeHtml(item.title)}：</b>${escapeHtml(item.desc || '')}`;
+                div.style.cssText = `font-size: 12.5px; line-height: 1.55; padding: 8px 12px; border-radius: 8px; border: 1px solid ${isHidden ? '#fee2e2' : 'var(--border-light)'}; background: ${isHidden ? '#fff5f5' : '#ffffff'};`;
+                div.innerHTML = `
+                    <button class="action-icon-btn" style="float: right; margin-left: 6px;" onclick="deleteProfileItem(${idx})">🗑️</button>
+                    <span class="perm-tag ${isHidden ? 'perm-hidden' : 'perm-open'}">${isHidden ? '仅 AI 可见' : '公开'}</span>
+                    <span class="source-pill ${isAi ? 'src-ai-style' : 'src-user-style'}">${isAi ? '🤖 AI补充' : '✍️ 亲自填写'}</span>
+                    <b>${escapeHtml(item.title)}：</b>${escapeHtml(item.desc || '')}
+                `;
                 list.appendChild(div);
             });
         }
@@ -1650,7 +1702,7 @@
                             <b style="font-size: 12.5px; color: var(--text-primary);">第 ${idx + 1} 题：${escapeHtml(q)}</b>
                             <div style="display: flex; gap: 6px; margin-top: 2px;">
                                 <input type="text" id="ans_${s.id}_${idx}" placeholder="输入你 (${roleDefinitions[currentActiveRole].name}) 的回答..." style="flex: 1; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light); font-size: 12px; outline: none; background: #ffffff;">
-                                <button type="button" onclick="submitSurveyAnswer('${s.id}', ${idx})" style="background: #1c1917; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11.5px; cursor: pointer; white-space: nowrap;">提交</button>
+                                <button type="button" onclick="submitSurveyAnswer('${s.id}', ${idx})" style="background: var(--theme-green-dark); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11.5px; cursor: pointer; white-space: nowrap;">提交</button>
                             </div>
                         </div>
                     `;
@@ -1678,7 +1730,255 @@
             });
         }
 
-        /* ================= 交互与发送 ================= */
+        /* ================= 🤖 AI 自动深度学习补充我的画像 ================= */
+        async function triggerAiExtractProfile() {
+            const allMessages = [];
+            Object.keys(globalState.chatRooms).forEach(rId => {
+                (globalState.chatRooms[rId] || []).forEach(m => {
+                    const name = (roleDefinitions[m.sender] || {}).name || m.sender;
+                    allMessages.push(`[${name}]：${m.text}`);
+                });
+            });
+
+            if (allMessages.length < 2) {
+                alert('当前聊天记录较少，请多聊几句后再让 AI 学习补充！');
+                return;
+            }
+
+            const btn = document.getElementById('btnAiExtractProfile');
+            btn.disabled = true;
+            btn.innerText = 'AI正在深度学习并提炼画像...';
+
+            const apiKey = localStorage.getItem('hub_api_key');
+            let baseUrl = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
+            const model = localStorage.getItem('hub_api_model') || 'deepseek-chat';
+            if (!baseUrl.endsWith('/chat/completions')) baseUrl = baseUrl.replace(/\/+$/, '') + '/chat/completions';
+
+            const profilePrompt = `你是一个深谙心理学与家庭沟通的观察家。
+请根据以下对话记录，专门深入剖析【孩子】在对话中显露出的隐性特质、沟通软肋、情绪触发点或真实需求。
+
+【对话历史】：
+${allMessages.slice(-25).join('\n')}
+
+【要求】：严格输出以下 JSON 数组格式（2~3条即可，大白话，客观精准）：
+[
+  { "title": "特质简短名称（如：压力反应模式 / 真实安全感来源 / 偏好的沟通语气）", "desc": "具体客观描述，帮助长辈更好理解孩子", "perm": "open" }
+]`;
+
+            try {
+                let items;
+                if (apiKey) {
+                    const response = await fetch(baseUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [{ role: 'system', content: profilePrompt }],
+                            temperature: 0.3
+                        })
+                    });
+                    if (!response.ok) throw new Error(`API 响应错误：${response.statusText}`);
+                    const data = await response.json();
+                    items = JSON.parse(data.choices[0].message.content.replace(/```json/g, '').replace(/```/g, '').trim());
+                } else {
+                    await new Promise(r => setTimeout(r, 1000));
+                    items = [
+                        { title: "沟通中的防御机制", desc: "当感受到被催促或否定时，容易本能采取沉默来保护个人边界，此时需要先给予平静空间。", perm: "open" },
+                        { title: "对认可的深层渴望", desc: "其实非常看重父母的肯定，但希望得到的是无条件的接纳，而非带有前置条件的认可。", perm: "open" }
+                    ];
+                }
+
+                if (Array.isArray(items)) {
+                    items.forEach(it => {
+                        it.source = 'ai';
+                        globalState.profileList.push(it);
+                    });
+                    renderProfiles();
+                    broadcastSyncAction({ type: 'SYNC_PROFILES', profileList: globalState.profileList });
+                    alert('AI 已成功依据近期对话深度学习并补充了你的特质画像！');
+                }
+            } catch (err) {
+                alert('AI 提炼特质失败：' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '🤖 让AI补充我的特质';
+            }
+        }
+
+        /* ================= 🤖 AI 自动提炼问题表 ================= */
+        async function triggerAiExtractAllTables() {
+            const allMessages = [];
+            Object.keys(globalState.chatRooms).forEach(rId => {
+                (globalState.chatRooms[rId] || []).forEach(m => {
+                    const name = (roleDefinitions[m.sender] || {}).name || m.sender;
+                    allMessages.push(`[${name}]：${m.text}`);
+                });
+            });
+
+            if (allMessages.length < 2) {
+                alert('当前聊天记录太少，暂无法进行有效提炼。请大家在群里多聊几句再来提取！');
+                return;
+            }
+
+            const btn = document.getElementById('btnAiExtractTables');
+            btn.disabled = true;
+            btn.innerText = 'AI正在归纳提炼中...';
+
+            const apiKey = localStorage.getItem('hub_api_key');
+            let baseUrl = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
+            const model = localStorage.getItem('hub_api_model') || 'deepseek-chat';
+            if (!baseUrl.endsWith('/chat/completions')) baseUrl = baseUrl.replace(/\/+$/, '') + '/chat/completions';
+
+            const profileTexts = globalState.profileList.map(item => `${item.title}: ${item.desc}`).join('\n');
+
+            const extractPrompt = `你是一个冷静、客观的家庭沟通分析分析师。
+请仔细阅读以下家庭成员（妈妈、爸爸、孩子）的全部对话历史与背景资料，客观提炼出每个人在沟通中暴露出来的真实问题点。
+
+【背景与性格底牌】：
+${profileTexts}
+
+【家庭全部对话历史】：
+${allMessages.slice(-20).join('\n')}
+
+【你的任务与输出格式】：
+严格按照以下 JSON 格式输出客观提炼结果，不要任何多余废话。大白话、接地气、就事论事：
+{
+  "mom": [
+    { "issue": "问题具体表现（如：将关心演变成追问）", "logic": "背后的逻辑漏洞或认知误区", "refuse": "典型的不认错话术", "advice": "AI给出的正确做法" }
+  ],
+  "dad": [
+    { "issue": "问题具体表现", "logic": "背后的逻辑漏洞", "refuse": "典型话术", "advice": "建议做法" }
+  ],
+  "me": [
+    { "issue": "问题具体表现", "logic": "背后的逻辑漏洞", "refuse": "引发误解的行为", "advice": "建议做法" }
+  ]
+}`;
+
+            try {
+                let extractedData;
+                if (apiKey) {
+                    const response = await fetch(baseUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [{ role: 'system', content: extractPrompt }],
+                            temperature: 0.2
+                        })
+                    });
+                    if (!response.ok) throw new Error(`API 响应错误：${response.statusText}`);
+                    const data = await response.json();
+                    const raw = data.choices[0].message.content;
+                    extractedData = JSON.parse(raw.replace(/```json/g, '').replace(/```/g, '').trim());
+                } else {
+                    await new Promise(r => setTimeout(r, 1000));
+                    extractedData = {
+                        mom: [
+                            { issue: "容易将关心演化为情绪化质问", logic: "出发点是出于关爱，但在表达形式上带有否定或催促", refuse: "“我还不是为了你好”", advice: "直接表达关切本身，不附加负面评价" }
+                        ],
+                        dad: [
+                            { issue: "习惯性以传统经验下定论", logic: "容易用过去的经验套用现在的新环境，缺乏实地调研", refuse: "“我走过的路比你多”", advice: "先倾听具体事实，再给出建设性建议" }
+                        ],
+                        me: [
+                            { issue: "遇到误解时容易直接封闭沟通", logic: "觉得解释成本高而放弃沟通，加深双方隔阂", refuse: "直接沉默或不回消息", advice: "给出一句明确的时间预期：“我需要先休息半小时再聊”" }
+                        ]
+                    };
+                }
+
+                if (extractedData.mom && Array.isArray(extractedData.mom)) globalState.problemTables.mom = extractedData.mom;
+                if (extractedData.dad && Array.isArray(extractedData.dad)) globalState.problemTables.dad = extractedData.dad;
+                if (extractedData.me && Array.isArray(extractedData.me)) globalState.problemTables.me = extractedData.me;
+
+                renderTables();
+                broadcastSyncAction({ type: 'SYNC_PROBLEM_TABLES', problemTables: globalState.problemTables });
+                alert('AI 已根据最新对话完成问题点提炼，并已自动填入表格！您可以随时在表格中点击【修改】微调。');
+            } catch (err) {
+                alert('AI 提炼失败：' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '🤖 AI自动提炼问题';
+            }
+        }
+
+        /* ================= 问题表：人工编辑/删除 ================= */
+        function openAddTableRowModal(person) {
+            document.getElementById('tableModalTitle').innerText = `添加 ${person === 'mom' ? '妈妈' : person === 'dad' ? '爸爸' : '我'} 的问题条目`;
+            document.getElementById('editRowPerson').value = person;
+            document.getElementById('editRowIndex').value = '-1';
+            document.getElementById('editRowIssue').value = '';
+            document.getElementById('editRowLogic').value = '';
+            document.getElementById('editRowRefuse').value = '';
+            document.getElementById('editRowAdvice').value = '';
+            document.getElementById('tableEditRowModal').style.display = 'flex';
+        }
+
+        function openEditTableRowModal(person, index) {
+            const list = globalState.problemTables[person] || [];
+            const item = list[index];
+            if (!item) return;
+
+            document.getElementById('tableModalTitle').innerText = `修改 ${person === 'mom' ? '妈妈' : person === 'dad' ? '爸爸' : '我'} 的问题条目`;
+            document.getElementById('editRowPerson').value = person;
+            document.getElementById('editRowIndex').value = index;
+            document.getElementById('editRowIssue').value = item.issue || '';
+            document.getElementById('editRowLogic').value = item.logic || '';
+            document.getElementById('editRowRefuse').value = item.refuse || '';
+            document.getElementById('editRowAdvice').value = item.advice || '';
+            document.getElementById('tableEditRowModal').style.display = 'flex';
+        }
+
+        function closeTableEditRowModal() {
+            document.getElementById('tableEditRowModal').style.display = 'none';
+        }
+
+        function saveTableRowFromModal() {
+            const person = document.getElementById('editRowPerson').value;
+            const index = parseInt(document.getElementById('editRowIndex').value, 10);
+            const issue = document.getElementById('editRowIssue').value.trim();
+            const logic = document.getElementById('editRowLogic').value.trim();
+            const refuse = document.getElementById('editRowRefuse').value.trim();
+            const advice = document.getElementById('editRowAdvice').value.trim();
+
+            if (!issue) { alert('请填写问题表现！'); return; }
+
+            const rowData = {
+                issue: issue,
+                logic: logic || '就事论事分析',
+                refuse: refuse || '无',
+                advice: advice || '就事论事，保持沟通'
+            };
+
+            if (!globalState.problemTables[person]) globalState.problemTables[person] = [];
+
+            if (index >= 0) {
+                globalState.problemTables[person][index] = rowData;
+            } else {
+                globalState.problemTables[person].push(rowData);
+            }
+
+            renderTables();
+            broadcastSyncAction({ type: 'SYNC_PROBLEM_TABLES', problemTables: globalState.problemTables });
+            closeTableEditRowModal();
+            alert('表格已保存并实时同步全家！');
+        }
+
+        function deleteTableRow(person, index) {
+            if (!confirm('确定要删除该条问题记录吗？')) return;
+            if (globalState.problemTables[person]) {
+                globalState.problemTables[person].splice(index, 1);
+                renderTables();
+                broadcastSyncAction({ type: 'SYNC_PROBLEM_TABLES', problemTables: globalState.problemTables });
+            }
+        }
+
+        function deleteProfileItem(idx) {
+            if (!confirm('确定删除此条资料？')) return;
+            globalState.profileList.splice(idx, 1);
+            renderProfiles();
+            broadcastSyncAction({ type: 'SYNC_PROFILES', profileList: globalState.profileList });
+        }
+
+        /* ================= 消息发送与操作 ================= */
         function changeRole(role, btnEl) {
             currentActiveRole = role;
             localStorage.setItem('family_my_role', role);
@@ -1742,477 +2042,4 @@
         async function triggerAiAnalyzeCurrent() {
             const list = globalState.chatRooms[currentRoomId] || [];
             if (list.length === 0) {
-                alert('当前暂无对话内容可供 AI 分析！');
-                return;
-            }
-
-            isAiThinking = true;
-            renderChatStream();
-
-            const roleCfg = globalState.roomRoles[currentRoomId] || { tag: '客观事实拆解员', prompt: '客观大白话拆解。' };
-            const apiKey = localStorage.getItem('hub_api_key');
-
-            try {
-                let aiResult;
-                if (apiKey) {
-                    aiResult = await callRealAiApi(roleCfg.prompt);
-                } else {
-                    await new Promise(res => setTimeout(res, 800));
-                    aiResult = {
-                        flawAnalysis: `[${roleCfg.tag}] 客观拆解：双方已陈述事实与想法。建议继续就事论事，一次只谈眼前的一件事，避免情绪化夸大。`,
-                        currentEvent: "家庭日常沟通与事实核对",
-                        actualDemands: "希望被尊重理解，且各自的边界不被越界",
-                        nextStep: "针对具体细节协商约定，避免翻旧账"
-                    };
-                }
-
-                const aiMsg = {
-                    id: 'msg_ai_' + Date.now(),
-                    sender: 'ai',
-                    text: aiResult.flawAnalysis,
-                    time: '刚刚'
-                };
-                globalState.chatRooms[currentRoomId].push(aiMsg);
-                renderChatStream();
-                broadcastSyncAction({ type: 'CHAT_MESSAGE', roomId: currentRoomId, msg: aiMsg });
-
-                if (aiResult.currentEvent) document.getElementById('statusEventText').innerText = aiResult.currentEvent;
-                if (aiResult.flawAnalysis) document.getElementById('statusFlawText').innerHTML = escapeHtml(aiResult.flawAnalysis);
-                if (aiResult.actualDemands) document.getElementById('statusDemandText').innerHTML = escapeHtml(aiResult.actualDemands);
-                if (aiResult.nextStep) document.getElementById('statusActionText').innerText = aiResult.nextStep;
-            } catch (err) {
-                alert('AI 呼叫失败：' + err.message);
-            } finally {
-                isAiThinking = false;
-                renderChatStream();
-            }
-        }
-
-        async function callRealAiApi(roomRolePrompt) {
-            const apiKey = localStorage.getItem('hub_api_key');
-            let baseUrl = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
-            const model = localStorage.getItem('hub_api_model') || 'deepseek-chat';
-            if (!baseUrl.endsWith('/chat/completions')) baseUrl = baseUrl.replace(/\/+$/, '') + '/chat/completions';
-
-            const profileTexts = globalState.profileList.map(item => `${item.title}: ${item.desc}`).join('\n');
-            const recentHistory = (globalState.chatRooms[currentRoomId] || []).slice(-8).map(m => {
-                const name = (roleDefinitions[m.sender] || {}).name || m.sender;
-                return `${name}：${m.text}`;
-            }).join('\n');
-
-            const systemPrompt = `【你在当前窗口的专属角色定位与指令】：
-${roomRolePrompt}
-
-【通用背景与家庭底牌数据】：
-${profileTexts || '暂无特殊底牌，按通识客观沟通'}
-
-【当前最新对话记录】：
-${recentHistory}
-
-【输出格式要求】：
-请务必使用通俗、口语化的大白话，并严格输出以下 JSON 格式：
-{
-  "flawAnalysis": "结合你的角色设定，客观指出刚才发言中谁在哪句话有什么逻辑问题或需要注意的地方（大白话直接指明）",
-  "currentEvent": "一句话概括当前争执的核心事件",
-  "actualDemands": "双方各自真正想要的实际需求（不带情绪）",
-  "nextStep": "具体的一步行动建议"
-}`;
-
-            const response = await fetch(baseUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: '请对上述对话进行客观事实拆解与回应。' }],
-                    temperature: 0.3
-                })
-            });
-
-            if (!response.ok) throw new Error(`API 响应错误：${response.statusText}`);
-            const data = await response.json();
-            const rawContent = data.choices[0].message.content;
-            try {
-                return JSON.parse(rawContent.replace(/```json/g, '').replace(/```/g, '').trim());
-            } catch (e) {
-                return { flawAnalysis: rawContent, currentEvent: "实时交流梳理", actualDemands: "互相听懂对方诉求", nextStep: "一次只谈一件事" };
-            }
-        }
-
-        /* ================= 消息单条与多选操作 ================= */
-        function copySingleMessage(msgId) {
-            const list = globalState.chatRooms[currentRoomId] || [];
-            const msg = list.find(m => m.id === msgId);
-            if (!msg) return;
-            navigator.clipboard.writeText(msg.text).then(() => {
-                alert('已复制该消息内容！');
-            });
-        }
-
-        function deleteSingleMessage(msgId) {
-            if (!confirm('确定要撤回/删除这条消息吗？此操作将同步给全家。')) return;
-            if (globalState.chatRooms[currentRoomId]) {
-                globalState.chatRooms[currentRoomId] = globalState.chatRooms[currentRoomId].filter(m => m.id !== msgId);
-                renderChatStream();
-                broadcastSyncAction({ type: 'DELETE_MESSAGE', roomId: currentRoomId, msgIds: [msgId] });
-            }
-        }
-
-        function editSingleMessage(msgId) {
-            const list = globalState.chatRooms[currentRoomId] || [];
-            const msg = list.find(m => m.id === msgId);
-            if (!msg) return;
-            const newText = prompt('编辑修改这条消息：', msg.text);
-            if (newText !== null && newText.trim() && newText.trim() !== msg.text) {
-                msg.text = newText.trim();
-                renderChatStream();
-                broadcastSyncAction({ type: 'EDIT_MESSAGE', roomId: currentRoomId, msgId: msgId, newText: msg.text });
-            }
-        }
-
-        async function regenerateAiResponse(msgId) {
-            deleteSingleMessage(msgId);
-            await triggerAiAnalyzeCurrent();
-        }
-
-        function toggleSelectionMode() {
-            isSelectionMode = !isSelectionMode;
-            const btn = document.getElementById('btnToggleSelectMode');
-            const bar = document.getElementById('batchActionBar');
-            
-            if (isSelectionMode) {
-                btn.classList.add('active');
-                bar.classList.add('show');
-            } else {
-                btn.classList.remove('active');
-                bar.classList.remove('show');
-                document.querySelectorAll('.msg-checkbox').forEach(cb => cb.checked = false);
-            }
-            updateBatchSelectedCount();
-            renderChatStream();
-        }
-
-        function updateBatchSelectedCount() {
-            const checkedBoxes = document.querySelectorAll('.msg-checkbox:checked');
-            document.getElementById('batchSelectedCount').innerText = checkedBoxes.length;
-        }
-
-        function batchCopyMessages() {
-            const checkedBoxes = document.querySelectorAll('.msg-checkbox:checked');
-            if (checkedBoxes.length === 0) { alert('请先勾选需要复制的消息！'); return; }
-
-            const list = globalState.chatRooms[currentRoomId] || [];
-            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
-            const copyTexts = list.filter(m => selectedIds.includes(m.id)).map(m => {
-                const name = (roleDefinitions[m.sender] || {}).name || m.sender;
-                return `[${name} ${m.time}]：${m.text}`;
-            }).join('\n');
-
-            navigator.clipboard.writeText(copyTexts).then(() => {
-                alert(`已合并复制 ${checkedBoxes.length} 条选中的消息！`);
-                toggleSelectionMode();
-            });
-        }
-
-        function batchDeleteMessages() {
-            const checkedBoxes = document.querySelectorAll('.msg-checkbox:checked');
-            if (checkedBoxes.length === 0) { alert('请先勾选需要删除的消息！'); return; }
-
-            if (!confirm(`确定要批量删除选中的 ${checkedBoxes.length} 条消息吗？`)) return;
-
-            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
-            if (globalState.chatRooms[currentRoomId]) {
-                globalState.chatRooms[currentRoomId] = globalState.chatRooms[currentRoomId].filter(m => !selectedIds.includes(m.id));
-                renderChatStream();
-                broadcastSyncAction({ type: 'DELETE_MESSAGE', roomId: currentRoomId, msgIds: selectedIds });
-                toggleSelectionMode();
-            }
-        }
-
-        /* ================= 问卷多题与在线作答 ================= */
-        function addQuestionField() {
-            const container = document.getElementById('surveyQuestionsBuilder');
-            const qCount = container.children.length + 1;
-            const div = document.createElement('div');
-            div.className = 'survey-q-row';
-            div.style.cssText = "display: flex; gap: 6px;";
-            div.innerHTML = `
-                <input type="text" class="survey-q-input" placeholder="问题 ${qCount}：写下你想向大家提问的事情...">
-                <button type="button" onclick="this.parentElement.remove()" style="background: none; border: 1px solid var(--border-light); padding: 0 8px; border-radius: 6px; cursor: pointer; color: var(--text-subtle);">✕</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function sendSurveyForm() {
-            const topic = document.getElementById('surveyTopicInput').value.trim();
-            if (!topic) { alert('请输入问卷标题！'); return; }
-
-            const qInputs = document.querySelectorAll('.survey-q-input');
-            const questions = [];
-            qInputs.forEach(input => {
-                const val = input.value.trim();
-                if (val) questions.push(val);
-            });
-
-            if (questions.length === 0) {
-                alert('请至少填写一个问题！');
-                return;
-            }
-
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-            
-            const survey = {
-                id: 'surv_' + Date.now(),
-                topic: topic,
-                questions: questions,
-                answers: [],
-                date: dateStr
-            };
-
-            if (!globalState.surveys) globalState.surveys = [];
-            globalState.surveys.unshift(survey);
-            renderSurveys();
-            broadcastSyncAction({ type: 'ADD_SURVEY', survey });
-
-            document.getElementById('surveyTopicInput').value = '';
-            document.getElementById('surveyQuestionsBuilder').innerHTML = `
-                <div class="survey-q-row" style="display: flex; gap: 6px;">
-                    <input type="text" class="survey-q-input" placeholder="问题 1：写下你想向大家提问的事情...">
-                </div>
-            `;
-            alert('家庭小问卷已正式发布并同步全家！');
-        }
-
-        function submitSurveyAnswer(surveyId, qIndex) {
-            const inputId = `ans_${surveyId}_${qIndex}`;
-            const input = document.getElementById(inputId);
-            const text = input ? input.value.trim() : '';
-            if (!text) { alert('请输入您的回答内容！'); return; }
-
-            const now = new Date();
-            const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-            const answer = {
-                role: currentActiveRole,
-                qIndex: qIndex,
-                text: text,
-                time: timeStr
-            };
-
-            const s = globalState.surveys.find(item => item.id === surveyId);
-            if (s) {
-                if (!s.answers) s.answers = [];
-                s.answers.push(answer);
-                renderSurveys();
-                broadcastSyncAction({ type: 'ANSWER_SURVEY', surveyId, answer });
-                alert('您的回答已提交并实时同步给全家！');
-            }
-        }
-
-        /* ================= 真实 API 模型在线拉取 ================= */
-        async function fetchAvailableModels() {
-            const apiKey = document.getElementById('cfgApiKey').value.trim();
-            let baseUrl = document.getElementById('cfgBaseUrl').value.trim() || 'https://api.deepseek.com/v1';
-
-            if (!apiKey) {
-                alert('请先输入 API Key 密钥，才能拉取可用模型列表！');
-                return;
-            }
-
-            const btn = document.getElementById('btnFetchModels');
-            btn.disabled = true;
-            btn.innerText = '拉取中...';
-
-            let modelsUrl = baseUrl;
-            if (modelsUrl.endsWith('/chat/completions')) {
-                modelsUrl = modelsUrl.replace(/\/chat\/completions$/, '/models');
-            } else {
-                modelsUrl = modelsUrl.replace(/\/+$/, '') + '/models';
-            }
-
-            try {
-                const response = await fetch(modelsUrl, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${apiKey}` }
-                });
-
-                if (!response.ok) throw new Error(`获取失败 (${response.status}): ${response.statusText}`);
-
-                const data = await response.json();
-                const modelSelect = document.getElementById('cfgModelSelect');
-                modelSelect.innerHTML = '<option value="">-- 请选择拉取到的模型 --</option>';
-
-                const modelsList = data.data || data.models || [];
-                if (Array.isArray(modelsList) && modelsList.length > 0) {
-                    modelsList.forEach(m => {
-                        const mId = m.id || m.name || m;
-                        const opt = document.createElement('option');
-                        opt.value = mId;
-                        opt.innerText = mId;
-                        modelSelect.appendChild(opt);
-                    });
-                    modelSelect.style.display = 'block';
-                    alert(`成功拉取到 ${modelsList.length} 个可用模型！`);
-                } else {
-                    alert('拉取成功但未解析到标准列表，请手动输入模型名称。');
-                }
-            } catch (err) {
-                alert('拉取模型失败：' + err.message + '\n可直接在下方手动填写模型名称（如 deepseek-chat）。');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = '🔄 在线拉取模型';
-            }
-        }
-
-        function onModelSelectChange(selectEl) {
-            if (selectEl.value) {
-                document.getElementById('cfgModel').value = selectEl.value;
-            }
-        }
-
-        /* ================= 辅助添加与房间管理 ================= */
-        function addRowToTable(person, issueId, logicId, refuseId, adviceId) {
-            const issue = document.getElementById(issueId).value.trim();
-            const logic = document.getElementById(logicId).value.trim();
-            const refuse = document.getElementById(refuseId).value.trim();
-            const advice = document.getElementById(adviceId).value.trim();
-            if (!issue) { alert('请填写问题表现！'); return; }
-
-            const row = { issue, logic: logic || '待补充', refuse: refuse || '无', advice: advice || '就事论事' };
-            if (!globalState.problemTables[person]) globalState.problemTables[person] = [];
-            globalState.problemTables[person].push(row);
-            renderTables();
-            broadcastSyncAction({ type: 'ADD_PROBLEM_ROW', person, row });
-
-            document.getElementById(issueId).value = '';
-            document.getElementById(logicId).value = '';
-            document.getElementById(refuseId).value = '';
-            document.getElementById(adviceId).value = '';
-            alert('已添加到表格并实时同步全家！');
-        }
-
-        function addNewProfileItem() {
-            const title = document.getElementById('profileTitleInput').value.trim();
-            const desc = document.getElementById('profileDescInput').value.trim();
-            const perm = document.getElementById('profilePermSelect').value;
-            if (!title) { alert('请输入资料标题！'); return; }
-
-            const item = { title, desc: desc || '已记录生效。', perm };
-            globalState.profileList.push(item);
-            renderProfiles();
-            broadcastSyncAction({ type: 'ADD_PROFILE_ITEM', item });
-
-            document.getElementById('profileTitleInput').value = '';
-            document.getElementById('profileDescInput').value = '';
-            alert('资料已保存并同步云端！');
-        }
-
-        function addConsensusTimeline() {
-            const title = document.getElementById('consensusTitle').value.trim();
-            const content = document.getElementById('consensusContent').value.trim();
-            if (!title) { alert('请输入共识标题！'); return; }
-
-            const now = new Date();
-            const item = { title, desc: content || '双方已确认遵守。', date: `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日` };
-            globalState.consensusList.push(item);
-            renderConsensus();
-            broadcastSyncAction({ type: 'ADD_CONSENSUS', item });
-
-            document.getElementById('consensusTitle').value = '';
-            document.getElementById('consensusContent').value = '';
-            alert('新共识已归档并同步全家！');
-        }
-
-        function openRoomModal() { document.getElementById('roomModalDialog').style.display = 'flex'; document.getElementById('customRoomInput').focus(); }
-        function closeRoomModal() { document.getElementById('roomModalDialog').style.display = 'none'; }
-        function confirmCreateRoom() {
-            const val = document.getElementById('customRoomInput').value.trim();
-            const rolePrompt = document.getElementById('customRoleInput').value.trim() || '客观事实拆解员，用大白话讲清楚事实。';
-            if (!val) return;
-            const newRoomId = 'room-custom-' + Date.now();
-            globalState.roomRoles[newRoomId] = { tag: val + ' 顾问', prompt: rolePrompt };
-            globalState.chatRooms[newRoomId] = [];
-            const li = document.createElement('li');
-            li.className = 'nav-link';
-            li.onclick = function() { showChatPane(newRoomId, '💬 ' + val, '专项独立讨论视窗', this); };
-            li.innerHTML = `<div class="nav-link-content"><span>💬</span> ${escapeHtml(val)}</div>`;
-            document.getElementById('roomsList').appendChild(li);
-            broadcastSyncAction({ type: 'FULL_SYNC_STATE', state: globalState });
-            document.getElementById('customRoomInput').value = '';
-            document.getElementById('customRoleInput').value = '';
-            closeRoomModal();
-            li.click();
-        }
-
-        function openEditRoleModal() {
-            const roleCfg = globalState.roomRoles[currentRoomId] || { tag: '', prompt: '' };
-            document.getElementById('roleTagInput').value = roleCfg.tag;
-            document.getElementById('rolePromptInput').value = roleCfg.prompt;
-            document.getElementById('editRoleModal').style.display = 'flex';
-        }
-        function closeEditRoleModal() { document.getElementById('editRoleModal').style.display = 'none'; }
-        function saveRoomRoleConfig() {
-            const tag = document.getElementById('roleTagInput').value.trim() || '自定义角色';
-            const prompt = document.getElementById('rolePromptInput').value.trim() || '按客观大白话拆解。';
-            const roleCfg = { tag, prompt };
-            globalState.roomRoles[currentRoomId] = roleCfg;
-            document.getElementById('curRoomRoleTag').innerText = tag;
-            broadcastSyncAction({ type: 'UPDATE_ROLE_CONFIG', roomId: currentRoomId, roleCfg });
-            closeEditRoleModal();
-            alert('已更新并同步全家！');
-        }
-
-        function openAiConfigModal() {
-            document.getElementById('cfgBaseUrl').value = localStorage.getItem('hub_api_url') || 'https://api.deepseek.com/v1';
-            document.getElementById('cfgApiKey').value = localStorage.getItem('hub_api_key') || '';
-            document.getElementById('cfgModel').value = localStorage.getItem('hub_api_model') || 'deepseek-chat';
-            document.getElementById('aiConfigModal').style.display = 'flex';
-        }
-        function closeAiConfigModal() { document.getElementById('aiConfigModal').style.display = 'none'; }
-        function saveAiConfig() {
-            localStorage.setItem('hub_api_url', document.getElementById('cfgBaseUrl').value.trim());
-            localStorage.setItem('hub_api_key', document.getElementById('cfgApiKey').value.trim());
-            localStorage.setItem('hub_api_model', document.getElementById('cfgModel').value.trim());
-            closeAiConfigModal();
-            alert('AI 接口配置已保存在本地浏览器！');
-        }
-
-        function getRoomCodeFromUrl() {
-            const match = window.location.search.match(/room=([a-zA-Z0-9_-]+)/) || window.location.hash.match(/room=([a-zA-Z0-9_-]+)/);
-            return match ? match[1] : null;
-        }
-
-        function copyInviteLink() {
-            const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                alert(`已复制家庭共享邀请链接：\n${shareUrl}\n\n直接发给爸爸妈妈，他们打开即可实时加入同一个家庭空间！`);
-            }).catch(() => {
-                prompt("请复制以下链接发给爸妈：", shareUrl);
-            });
-        }
-
-        function changeRoomCode() {
-            const newCode = prompt("请输入您和家人的专属房间号（英文或数字）：", roomCode);
-            if (newCode && newCode.trim() && newCode.trim() !== roomCode) {
-                roomCode = newCode.trim();
-                window.location.search = `?room=${roomCode}`;
-            }
-        }
-
-        function escapeHtml(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-
-        document.getElementById('mainChatInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                submitMessage(false);
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const btn = document.querySelector(`.btn-${currentActiveRole}`);
-            if (btn) changeRole(currentActiveRole, btn);
-            initCloudSync();
-        });
-    </script>
-</body>
-</html>
+                
